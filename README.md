@@ -47,6 +47,30 @@ print is frequently wrong.
 figure, or average the last three. Any forecast that can't beat these isn't adding
 information. This gives every other number on the page something to be measured against.
 
+## What it found
+
+Covering June 2021 to May 2026 — 59 monthly releases, 49 with a matching advance estimate.
+
+**The forecast is the boring part.** StatCan's advance estimate misses the first official
+figure by an average of **0.11 percentage points**, lands within 0.1 points in 32 of 49
+months, and calls the direction correctly in 27 of the 30 months where a direction
+existed. It roughly **halves** the error of repeating last month's number (0.11 vs 0.23).
+
+**The revisions are the interesting part.** The published figure moves by **0.15
+percentage points** on average after the fact — *more than the advance estimate was ever
+wrong by*. The number that gets traded on is, in a real sense, less settled than the
+preliminary guess that preceded it.
+
+**And the bit I had to argue myself down on.** Revisions lean upward: 29 up, 15 down, 15
+unchanged, averaging +0.07 points (t = +2.55). That was nearly the headline — but the six
+largest revisions all sit in the 2021 post-pandemic recovery. Dropping the earliest 12
+months, the average is still positive (+0.04) but the t-statistic falls to +1.75 and stops
+being distinguishable from zero. The direction is consistent; the evidence isn't decisive.
+The page says exactly that, directly beneath the chart, and `analyze.py` computes the
+robustness check on every run so the claim can't quietly outgrow the data.
+
+Full write-up: [`notes/2026-08-first-look.md`](notes/2026-08-first-look.md).
+
 ## The hard part: the API cannot answer this question
 
 This is the finding that shaped the whole project, and it's worth stating plainly.
@@ -121,7 +145,9 @@ only the newest release is fetched.
 ├── data/
 │   ├── raw/                    cached API responses and Daily articles
 │   └── processed/scorecard.json
-├── notes/                      written analysis, one file per update
+├── notes/
+│   ├── 2026-08-first-look.md   written analysis, one file per update
+│   └── linkedin-post-draft.md
 ├── docs/index.html             the published page
 └── .github/workflows/refresh.yml
 ```

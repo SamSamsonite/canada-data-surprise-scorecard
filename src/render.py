@@ -747,14 +747,23 @@ def describe_robustness(rb: dict) -> str:
     )
 
 
-def describe_revision(stats: dict) -> str:
+def describe_revision(stats: dict, rb: dict | None = None) -> str:
     r = stats["revision"]
     direction = "upward" if r["mean"] > 0 else "downward"
     if r["mean_differs_from_zero"]:
+        # "On the full sample" is doing real work here: the claim is only
+        # significant on the full window, and the caveat immediately below
+        # says so. Asserting it flatly and then retracting reads as a mistake
+        # rather than as a qualification.
+        scope = (
+            " on the full sample"
+            if rb and rb.get("applicable") and not rb.get("later_significant")
+            else ""
+        )
         lean = (
             f"and they lean {direction}: the average revision is "
-            f"{signed(r['mean'], 2)} points, which is large enough relative to its "
-            f"spread to be unlikely to be chance (t = {r['t_stat']:+.2f})"
+            f"{signed(r['mean'], 2)} points, which{scope} is large enough relative to "
+            f"its spread to be unlikely to be chance (t = {r['t_stat']:+.2f})"
         )
     else:
         lean = (
@@ -1040,7 +1049,7 @@ def build_page(data: dict) -> str:
           "number moves materially afterwards, decisions were made on a figure that "
           "no longer exists."
       ),
-      takeaway=describe_revision(stats),
+      takeaway=describe_revision(stats, data.get("robustness", {})),
       extra=robustness_html,
       svg=chart_revision,
       legend=legend_two(
