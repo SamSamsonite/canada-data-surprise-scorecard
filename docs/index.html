@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Canada Data Surprise Scorecard &#8212; how well was Canadian economic data anticipated?</title>
+<meta name="description" content="Scoring Statistics Canada's advance GDP estimates against the official first print, and measuring how much the published figures change afterwards. Built from free, open data.">
+<style>
+/* Colours come from src/validate_colours.py, which computes every contrast
+   ratio quoted in the README. Changing a value here without re-running that
+   script would invalidate the accessibility claims. */
+:root {
+  color-scheme: light dark;
+    --surface: #fcfcfb;
+    --page: #f4f4f1;
+    --text-primary: #141413;
+    --text-secondary: #4a4945;
+    --text-muted: #6b6a64;
+    --grid: #dcdbd4;
+    --axis: #8a8a82;
+    --above: #1f6fd0;
+    --below: #c1500f;
+    --neutral: #57564f;
+  --maxw: 54rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #1a1a19;
+    --page: #0f0f0e;
+    --text-primary: #f7f7f5;
+    --text-secondary: #c9c8be;
+    --text-muted: #9d9c93;
+    --grid: #2f2f2c;
+    --axis: #6f6f67;
+    --above: #5fa3ec;
+    --below: #f0894a;
+    --neutral: #a3a29a;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  /* No fixed pixel font size, so the page honours the reader's own browser
+     font-size setting instead of overriding it. */
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+  background: var(--page);
+  color: var(--text-primary);
+  -webkit-text-size-adjust: 100%;
+}
+body { margin: 0; padding: 0 1rem 4rem; }
+.wrap { max-width: var(--maxw); margin: 0 auto; }
+
+h1, h2, h3 { line-height: 1.25; text-wrap: balance; }
+h1 { font-size: clamp(1.6rem, 1.2rem + 2vw, 2.4rem); margin: 2rem 0 0.5rem; }
+h2 { font-size: clamp(1.25rem, 1.05rem + 1vw, 1.6rem); margin: 3rem 0 0.75rem;
+     padding-top: 1.25rem; border-top: 2px solid var(--grid); }
+h3 { font-size: clamp(1.05rem, 0.98rem + 0.5vw, 1.25rem); margin: 0 0 0.5rem; }
+p { margin: 0 0 1rem; }
+
+a { color: var(--above); }
+a:focus-visible, summary:focus-visible, details:focus-visible {
+  outline: 3px solid var(--above);
+  outline-offset: 2px;
+}
+
+.lede { font-size: 1.12rem; color: var(--text-primary); }
+.sub { color: var(--text-secondary); }
+.meta { color: var(--text-secondary); font-size: 0.92rem; }
+
+/* ---- key numbers -------------------------------------------------- */
+/* Two-up, then four-up. Explicit breakpoints rather than auto-fit, because
+   auto-fit leaves a lone orphan tile on its own row at in-between widths -
+   including at 200% zoom, which is exactly where it must not look broken. */
+.tiles {
+  display: grid; gap: 1rem; margin: 1.5rem 0 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 24rem) {
+  .tiles { grid-template-columns: minmax(0, 1fr); }
+}
+@media (min-width: 48rem) {
+  .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.tile {
+  background: var(--surface); border: 1px solid var(--grid);
+  border-radius: 10px; padding: 1rem 1.1rem;
+}
+.tilevalue {
+  font-size: 2rem; font-weight: 600; margin: 0 0 0.15rem;
+  color: var(--text-primary); letter-spacing: -0.01em;
+}
+.tilelabel { margin: 0 0 0.35rem; font-weight: 600; }
+.tilenote { margin: 0; font-size: 0.88rem; color: var(--text-secondary); }
+
+/* ---- figures ------------------------------------------------------ */
+.figure {
+  background: var(--surface); border: 1px solid var(--grid);
+  border-radius: 12px; padding: 1.25rem; margin: 1.5rem 0;
+}
+.takeaway {
+  font-size: 1.05rem; font-weight: 600; margin: 0 0 0.85rem;
+  color: var(--text-primary);
+}
+.framing { margin: 0 0 1rem; font-size: 0.95rem; }
+.framing dt {
+  font-weight: 600; color: var(--text-secondary);
+  font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.framing dd { margin: 0.1rem 0 0.6rem; color: var(--text-secondary); }
+.caveat {
+  font-size: 0.95rem; color: var(--text-secondary);
+  border-left: 3px solid var(--axis); padding: 0.1rem 0 0.1rem 0.85rem;
+  margin: 0 0 1rem;
+}
+.caveat strong { color: var(--text-primary); }
+
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 1.25rem; margin: 0 0 0.5rem;
+           font-size: 0.9rem; color: var(--text-secondary); }
+.key { display: inline-flex; align-items: center; gap: 0.45rem; }
+.swatch { width: 0.85rem; height: 0.85rem; border-radius: 3px; flex: none; }
+.swatch.above { background: var(--above); }
+.swatch.below { background: var(--below); }
+
+/* SVG mark styles. Kept in CSS rather than inline attributes so that light
+   and dark mode swap with a single custom-property change. */
+.chart .above { fill: var(--above); }
+.chart .below { fill: var(--below); }
+.chart .focus { fill: var(--above); }
+.chart .context { fill: var(--neutral); }
+.chart .zero-mark { fill: var(--axis); }
+.chart .grid { stroke: var(--grid); stroke-width: 1; }
+.chart .axis { stroke: var(--axis); stroke-width: 1.5; }
+.chart .line { fill: none; stroke: var(--above); stroke-width: 2;
+                stroke-linejoin: round; stroke-linecap: round; }
+.chart .endmark { fill: var(--above); stroke: var(--surface); stroke-width: 2; }
+.chart text { font-family: inherit; }
+.chart .tick { font-size: 12px; fill: var(--text-muted);
+                font-variant-numeric: tabular-nums; }
+.chart .rowlabel { font-size: 13px; fill: var(--text-secondary); }
+.chart .pointlabel { font-size: 12.5px; font-weight: 600; fill: var(--text-primary);
+                      font-variant-numeric: tabular-nums; }
+.chart .axistitle { font-size: 11.5px; fill: var(--text-muted); }
+
+/* ---- tables ------------------------------------------------------- */
+details { margin-top: 1rem; border-top: 1px solid var(--grid); padding-top: 0.75rem; }
+summary { cursor: pointer; font-weight: 600; font-size: 0.92rem;
+           color: var(--text-secondary); }
+summary::marker { color: var(--text-muted); }
+.tablenote { font-size: 0.9rem; color: var(--text-secondary); margin: 0.75rem 0 0.5rem; }
+/* Wide tables scroll inside their own box so the PAGE never scrolls
+   sideways - a requirement at 200% zoom. */
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem;
+         font-variant-numeric: tabular-nums; }
+caption { text-align: left; color: var(--text-secondary); font-size: 0.88rem;
+           padding-bottom: 0.5rem; }
+th, td { text-align: right; padding: 0.4rem 0.6rem;
+          border-bottom: 1px solid var(--grid); white-space: nowrap; }
+th[scope="row"] { text-align: left; font-weight: 500; }
+thead th { color: var(--text-secondary); font-size: 0.82rem; }
+
+/* ---- glossary & footer -------------------------------------------- */
+.steps { padding-left: 1.2rem; }
+.steps li { margin-bottom: 0.5rem; color: var(--text-secondary); }
+.steps strong { color: var(--text-primary); }
+.glossary dt { font-weight: 600; margin-top: 0.85rem; }
+.glossary dd { margin: 0.15rem 0 0; color: var(--text-secondary); }
+.callout { background: var(--surface); border: 1px solid var(--grid);
+            border-left: 4px solid var(--below); border-radius: 8px;
+            padding: 1rem 1.1rem; margin: 2rem 0; }
+/* The callout carries its own left rule, so its heading drops the section
+   border it would otherwise inherit from h2. */
+.callout h2 { border-top: none; padding-top: 0; margin-top: 0;
+               font-size: 1.15rem; }
+footer { margin-top: 3rem; padding-top: 1.25rem; border-top: 2px solid var(--grid);
+          color: var(--text-secondary); font-size: 0.9rem; }
+
+/* Nothing on this page animates, but a reader who has asked for reduced
+   motion should be insulated from anything a browser might add. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important; scroll-behavior: auto !important;
+  }
+}
+@media print {
+  .figure, .tile { break-inside: avoid; border-color: #999; }
+  details { display: block; }
+  details > summary { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Canada Data Surprise Scorecard</h1>
+  <p class="lede">Every month, Statistics Canada tells you how the economy did &#8212; three times, and not always the same thing. The forecast turns out to be the reassuring part: the advance estimate misses the official figure by 0.11 percentage points on average, and beats a rule as simple as repeating last month's number by 52%. The unsettling part is what happens afterwards. The published figure moves by 0.15 points on average once it is revised &#8212; more than the advance estimate was ever wrong by &#8212; and it moves <strong>up</strong> more often than not, by an average of 0.07 points. On average, the number everyone reacts to on release day has understated how the economy actually did &#8212; though, as the revisions section explains, that lean rests heavily on the post-pandemic recovery months and is suggestive rather than settled.</p>
+  <p class="meta">Monthly real GDP by industry, Jun 2021 to May 2026.
+     Sources: Statistics Canada and the Bank of Canada, both open-licensed.
+     Last rebuilt 2026-08-09 14:06 UTC.</p>
+</header>
+
+<main>
+  <h2>How a GDP number gets published</h2>
+  <p>The same month's growth is reported three separate times, and the differences
+     between them are what this page measures.</p>
+  <ol class="steps">
+    <li><strong>The advance estimate.</strong> Roughly a month before the official
+        figure, StatCan publishes a preliminary number based on incomplete data. It
+        appears inside the previous month's release.</li>
+    <li><strong>The first print.</strong> The first official figure. This is the one
+        that makes headlines and that markets trade on.</li>
+    <li><strong>The revisions.</strong> As fuller source data arrives, the figure is
+        quietly corrected &#8212; for years afterwards.</li>
+  </ol>
+
+  <h2>The headline numbers</h2>
+  <div class="tiles"><div class="tile"><p class="tilevalue">+0.07 pp</p><p class="tilelabel">Average revision, and it leans up</p><p class="tilenote">29 up, 15 down over the full sample; see the caveat below.</p></div><div class="tile"><p class="tilevalue">0.15 pp</p><p class="tilelabel">Typical size of a revision</p><p class="tilenote">Bigger than the advance estimate&#x27;s average miss of 0.11 pp.</p></div><div class="tile"><p class="tilevalue">0.11 pp</p><p class="tilelabel">Average advance-estimate miss</p><p class="tilenote">Over 49 months, with 32 of them within 0.1 points.</p></div><div class="tile"><p class="tilevalue">+0.3 pp</p><p class="tilelabel">Largest single miss</p><p class="tilenote">Nov 2021.</p></div></div>
+
+  <h2>The part nobody watches: what happens after the headline</h2>
+  
+<section class="figure">
+  <h3>Revisions to the first published figure</h3>
+  <p class="takeaway">Revisions move the published figure by 0.15 percentage points on average, and they lean upward: the average revision is +0.07 points, which is large enough relative to its spread to be unlikely to be chance (t = +2.55).</p>
+  <dl class="framing">
+    <dt>What this shows</dt><dd>For each month, how far today&#x27;s revised GDP figure sits from the number that was first published.</dd>
+    <dt>Why it matters</dt><dd>Markets, newsrooms and policymakers react to the first print. If that number moves materially afterwards, decisions were made on a figure that no longer exists.</dd>
+  </dl>
+  <p class="caveat"><strong>Read this with the finding above:</strong> That lean is not evenly spread across the sample. Dropping the earliest 12 months &#8212; the post-pandemic recovery, when GDP was moving fast and source data was unusually incomplete &#8212; the average revision is still upward at +0.04 points, but it is no longer large enough relative to its spread to rule out chance (t = +1.75, n = 47). The direction is consistent; the strength of the evidence for it is not. Treat the upward lean as suggestive rather than settled.</p>
+  <p class="legend"><span class="key"><span class="swatch above" aria-hidden="true"></span>Above the line: revised up, the month was better than first reported</span><span class="key"><span class="swatch below" aria-hidden="true"></span>Below the line: revised down</span></p>
+  <svg class="chart" viewBox="0 0 760 300" role="img" aria-labelledby="c-revision-t c-revision-d" xmlns="http://www.w3.org/2000/svg"><title id="c-revision-t">Revision to the first published figure, by month</title><desc id="c-revision-d">Column chart. Each column is one month: how far the current, revised GDP figure sits above or below the number first published, in percentage points. Columns above the zero line were revised up; below were revised down. Average absolute revision 0.15 points over 59 months. The full figures are in the data table below.</desc><line x1="52" y1="192.38" x2="744" y2="192.38" class="grid"/><text x="44" y="196.38" class="tick" text-anchor="end">-0.5</text><line x1="52" y1="71.62" x2="744" y2="71.62" class="grid"/><text x="44" y="75.62" class="tick" text-anchor="end">+0.5</text><path d="M54.23,132.00 L54.23,111.48 Q54.23,107.85 57.86,107.85 L57.86,107.85 Q61.50,107.85 61.50,111.48 L61.50,132.00 Z" class="above"/><path d="M65.96,132.00 L65.96,39.03 Q65.96,35.39 69.59,35.39 L69.59,35.39 Q73.23,35.39 73.23,39.03 L73.23,132.00 Z" class="above"/><text x="69.59" y="28.39" class="pointlabel" text-anchor="middle">+0.8</text><path d="M77.69,132.00 L77.69,87.33 Q77.69,83.69 81.32,83.69 L81.32,83.69 Q84.96,83.69 84.96,87.33 L84.96,132.00 Z" class="above"/><path d="M89.41,132.00 L89.41,87.33 Q89.41,83.69 93.05,83.69 L93.05,83.69 Q96.69,83.69 96.69,87.33 L96.69,132.00 Z" class="above"/><rect x="101.14" y="131.00" width="7.27" height="2" class="zero-mark"/><path d="M112.87,132.00 L112.87,140.44 Q112.87,144.08 116.51,144.08 L116.51,144.08 Q120.14,144.08 120.14,140.44 L120.14,132.00 Z" class="below"/><path d="M124.60,132.00 L124.60,87.33 Q124.60,83.69 128.24,83.69 L128.24,83.69 Q131.87,83.69 131.87,87.33 L131.87,132.00 Z" class="above"/><path d="M136.33,132.00 L136.33,176.67 Q136.33,180.31 139.97,180.31 L139.97,180.31 Q143.60,180.31 143.60,176.67 L143.60,132.00 Z" class="below"/><text x="139.97" y="195.31" class="pointlabel" text-anchor="middle">-0.4</text><rect x="148.06" y="131.00" width="7.27" height="2" class="zero-mark"/><path d="M159.79,132.00 L159.79,140.44 Q159.79,144.08 163.42,144.08 L163.42,144.08 Q167.06,144.08 167.06,140.44 L167.06,132.00 Z" class="below"/><path d="M171.52,132.00 L171.52,111.48 Q171.52,107.85 175.15,107.85 L175.15,107.85 Q178.79,107.85 178.79,111.48 L178.79,132.00 Z" class="above"/><path d="M183.25,132.00 L183.25,99.41 Q183.25,95.77 186.88,95.77 L186.88,95.77 Q190.52,95.77 190.52,99.41 L190.52,132.00 Z" class="above"/><rect x="194.97" y="131.00" width="7.27" height="2" class="zero-mark"/><path d="M206.70,132.00 L206.70,111.48 Q206.70,107.85 210.34,107.85 L210.34,107.85 Q213.97,107.85 213.97,111.48 L213.97,132.00 Z" class="above"/><path d="M218.43,132.00 L218.43,123.56 Q218.43,119.92 222.07,119.92 L222.07,119.92 Q225.70,119.92 225.70,123.56 L225.70,132.00 Z" class="above"/><path d="M230.16,132.00 L230.16,152.52 Q230.16,156.15 233.80,156.15 L233.80,156.15 Q237.43,156.15 237.43,152.52 L237.43,132.00 Z" class="below"/><path d="M241.89,132.00 L241.89,152.52 Q241.89,156.15 245.53,156.15 L245.53,156.15 Q249.16,156.15 249.16,152.52 L249.16,132.00 Z" class="below"/><path d="M253.62,132.00 L253.62,152.52 Q253.62,156.15 257.25,156.15 L257.25,156.15 Q260.89,156.15 260.89,152.52 L260.89,132.00 Z" class="below"/><path d="M265.35,132.00 L265.35,75.25 Q265.35,71.62 268.98,71.62 L268.98,71.62 Q272.62,71.62 272.62,75.25 L272.62,132.00 Z" class="above"/><path d="M277.08,132.00 L277.08,111.48 Q277.08,107.85 280.71,107.85 L280.71,107.85 Q284.35,107.85 284.35,111.48 L284.35,132.00 Z" class="above"/><path d="M288.80,132.00 L288.80,99.41 Q288.80,95.77 292.44,95.77 L292.44,95.77 Q296.08,95.77 296.08,99.41 L296.08,132.00 Z" class="above"/><rect x="300.53" y="131.00" width="7.27" height="2" class="zero-mark"/><path d="M312.26,132.00 L312.26,164.59 Q312.26,168.23 315.90,168.23 L315.90,168.23 Q319.53,168.23 319.53,164.59 L319.53,132.00 Z" class="below"/><path d="M323.99,132.00 L323.99,123.56 Q323.99,119.92 327.63,119.92 L327.63,119.92 Q331.26,119.92 331.26,123.56 L331.26,132.00 Z" class="above"/><path d="M335.72,132.00 L335.72,123.56 Q335.72,119.92 339.36,119.92 L339.36,119.92 Q342.99,119.92 342.99,123.56 L342.99,132.00 Z" class="above"/><rect x="347.45" y="131.00" width="7.27" height="2" class="zero-mark"/><path d="M359.18,132.00 L359.18,140.44 Q359.18,144.08 362.81,144.08 L362.81,144.08 Q366.45,144.08 366.45,140.44 L366.45,132.00 Z" class="below"/><path d="M370.91,132.00 L370.91,123.56 Q370.91,119.92 374.54,119.92 L374.54,119.92 Q378.18,119.92 378.18,123.56 L378.18,132.00 Z" class="above"/><path d="M382.64,132.00 L382.64,123.56 Q382.64,119.92 386.27,119.92 L386.27,119.92 Q389.91,119.92 389.91,123.56 L389.91,132.00 Z" class="above"/><path d="M394.36,132.00 L394.36,140.44 Q394.36,144.08 398.00,144.08 L398.00,144.08 Q401.64,144.08 401.64,140.44 L401.64,132.00 Z" class="below"/><path d="M406.09,132.00 L406.09,164.59 Q406.09,168.23 409.73,168.23 L409.73,168.23 Q413.36,168.23 413.36,164.59 L413.36,132.00 Z" class="below"/><path d="M417.82,132.00 L417.82,87.33 Q417.82,83.69 421.46,83.69 L421.46,83.69 Q425.09,83.69 425.09,87.33 L425.09,132.00 Z" class="above"/><rect x="429.55" y="131.00" width="7.27" height="2" class="zero-mark"/><path d="M441.28,132.00 L441.28,123.56 Q441.28,119.92 444.92,119.92 L444.92,119.92 Q448.55,119.92 448.55,123.56 L448.55,132.00 Z" class="above"/><path d="M453.01,132.00 L453.01,140.44 Q453.01,144.08 456.64,144.08 L456.64,144.08 Q460.28,144.08 460.28,140.44 L460.28,132.00 Z" class="below"/><path d="M464.74,132.00 L464.74,111.48 Q464.74,107.85 468.37,107.85 L468.37,107.85 Q472.01,107.85 472.01,111.48 L472.01,132.00 Z" class="above"/><rect x="476.47" y="131.00" width="7.27" height="2" class="zero-mark"/><path d="M488.19,132.00 L488.19,123.56 Q488.19,119.92 491.83,119.92 L491.83,119.92 Q495.47,119.92 495.47,123.56 L495.47,132.00 Z" class="above"/><path d="M499.92,132.00 L499.92,111.48 Q499.92,107.85 503.56,107.85 L503.56,107.85 Q507.20,107.85 507.20,111.48 L507.20,132.00 Z" class="above"/><path d="M511.65,132.00 L511.65,123.56 Q511.65,119.92 515.29,119.92 L515.29,119.92 Q518.92,119.92 518.92,123.56 L518.92,132.00 Z" class="above"/><rect x="523.38" y="131.00" width="7.27" height="2" class="zero-mark"/><rect x="535.11" y="131.00" width="7.27" height="2" class="zero-mark"/><path d="M546.84,132.00 L546.84,123.56 Q546.84,119.92 550.47,119.92 L550.47,119.92 Q554.11,119.92 554.11,123.56 L554.11,132.00 Z" class="above"/><rect x="558.57" y="131.00" width="7.27" height="2" class="zero-mark"/><path d="M570.30,132.00 L570.30,123.56 Q570.30,119.92 573.93,119.92 L573.93,119.92 Q577.57,119.92 577.57,123.56 L577.57,132.00 Z" class="above"/><rect x="582.03" y="131.00" width="7.27" height="2" class="zero-mark"/><path d="M593.75,132.00 L593.75,140.44 Q593.75,144.08 597.39,144.08 L597.39,144.08 Q601.03,144.08 601.03,140.44 L601.03,132.00 Z" class="below"/><path d="M605.48,132.00 L605.48,123.56 Q605.48,119.92 609.12,119.92 L609.12,119.92 Q612.75,119.92 612.75,123.56 L612.75,132.00 Z" class="above"/><path d="M617.21,132.00 L617.21,87.33 Q617.21,83.69 620.85,83.69 L620.85,83.69 Q624.48,83.69 624.48,87.33 L624.48,132.00 Z" class="above"/><path d="M628.94,132.00 L628.94,111.48 Q628.94,107.85 632.58,107.85 L632.58,107.85 Q636.21,107.85 636.21,111.48 L636.21,132.00 Z" class="above"/><rect x="640.67" y="131.00" width="7.27" height="2" class="zero-mark"/><rect x="652.40" y="131.00" width="7.27" height="2" class="zero-mark"/><path d="M664.13,132.00 L664.13,123.56 Q664.13,119.92 667.76,119.92 L667.76,119.92 Q671.40,119.92 671.40,123.56 L671.40,132.00 Z" class="above"/><path d="M675.86,132.00 L675.86,140.44 Q675.86,144.08 679.49,144.08 L679.49,144.08 Q683.13,144.08 683.13,140.44 L683.13,132.00 Z" class="below"/><path d="M687.58,132.00 L687.58,140.44 Q687.58,144.08 691.22,144.08 L691.22,144.08 Q694.86,144.08 694.86,140.44 L694.86,132.00 Z" class="below"/><rect x="699.31" y="131.00" width="7.27" height="2" class="zero-mark"/><path d="M711.04,132.00 L711.04,140.44 Q711.04,144.08 714.68,144.08 L714.68,144.08 Q718.31,144.08 718.31,140.44 L718.31,132.00 Z" class="below"/><path d="M722.77,132.00 L722.77,123.56 Q722.77,119.92 726.41,119.92 L726.41,119.92 Q730.04,119.92 730.04,123.56 L730.04,132.00 Z" class="above"/><rect x="734.50" y="131.00" width="7.27" height="2" class="zero-mark"/><line x1="52" y1="132.00" x2="744" y2="132.00" class="axis"/><text x="57.86" y="266" class="tick" text-anchor="middle">Jun 2021</text><text x="139.97" y="266" class="tick" text-anchor="middle">Jan 2022</text><text x="222.07" y="266" class="tick" text-anchor="middle">Sep 2022</text><text x="304.17" y="266" class="tick" text-anchor="middle">Apr 2023</text><text x="386.27" y="266" class="tick" text-anchor="middle">Nov 2023</text><text x="468.37" y="266" class="tick" text-anchor="middle">Jun 2024</text><text x="550.47" y="266" class="tick" text-anchor="middle">Jan 2025</text><text x="632.58" y="266" class="tick" text-anchor="middle">Aug 2025</text><text x="714.68" y="266" class="tick" text-anchor="middle">Mar 2026</text><text x="52" y="292" class="axistitle">percentage points &#8212; revised up above the line, revised down below</text></svg>
+  <details>
+    <summary>Show the numbers behind this chart</summary>
+    <p class="tablenote">Positive means the figure was later revised upward. This is the full scorecard table; the revision column is the one plotted here.</p>
+    <div class="tablewrap"><table><caption>Every month in the scorecard. Blank cells mean the figure was not available for that month.</caption><thead><tr><th scope="col">Month</th><th scope="col">Advance estimate (%)</th><th scope="col">First print (%)</th><th scope="col">Latest revised (%)</th><th scope="col">Surprise (pp)</th><th scope="col">Revision (pp)</th></tr></thead><tbody><tr><th scope="row">Jun 2021</th><td>—</td><td>+0.7</td><td>+0.9</td><td>—</td><td>+0.2</td></tr><tr><th scope="row">Jul 2021</th><td>—</td><td>-0.1</td><td>+0.7</td><td>—</td><td>+0.8</td></tr><tr><th scope="row">Aug 2021</th><td>—</td><td>+0.4</td><td>+0.8</td><td>—</td><td>+0.4</td></tr><tr><th scope="row">Sep 2021</th><td>—</td><td>+0.1</td><td>+0.5</td><td>—</td><td>+0.4</td></tr><tr><th scope="row">Oct 2021</th><td>—</td><td>+0.8</td><td>+0.8</td><td>—</td><td>0.0</td></tr><tr><th scope="row">Nov 2021</th><td>+0.3</td><td>+0.6</td><td>+0.5</td><td>+0.3</td><td>-0.1</td></tr><tr><th scope="row">Dec 2021</th><td>—</td><td>0.0</td><td>+0.4</td><td>—</td><td>+0.4</td></tr><tr><th scope="row">Jan 2022</th><td>—</td><td>+0.2</td><td>-0.2</td><td>—</td><td>-0.4</td></tr><tr><th scope="row">Feb 2022</th><td>—</td><td>+1.1</td><td>+1.1</td><td>—</td><td>0.0</td></tr><tr><th scope="row">Mar 2022</th><td>—</td><td>+0.7</td><td>+0.6</td><td>—</td><td>-0.1</td></tr><tr><th scope="row">May 2022</th><td>—</td><td>0.0</td><td>+0.2</td><td>—</td><td>+0.2</td></tr><tr><th scope="row">Jun 2022</th><td>+0.1</td><td>+0.1</td><td>+0.4</td><td>0.0</td><td>+0.3</td></tr><tr><th scope="row">Jul 2022</th><td>-0.1</td><td>+0.1</td><td>+0.1</td><td>+0.2</td><td>0.0</td></tr><tr><th scope="row">Aug 2022</th><td>0.0</td><td>+0.1</td><td>+0.3</td><td>+0.1</td><td>+0.2</td></tr><tr><th scope="row">Sep 2022</th><td>+0.1</td><td>+0.1</td><td>+0.2</td><td>0.0</td><td>+0.1</td></tr><tr><th scope="row">Oct 2022</th><td>0.0</td><td>+0.1</td><td>-0.1</td><td>+0.1</td><td>-0.2</td></tr><tr><th scope="row">Nov 2022</th><td>+0.1</td><td>+0.1</td><td>-0.1</td><td>0.0</td><td>-0.2</td></tr><tr><th scope="row">Dec 2022</th><td>0.0</td><td>-0.1</td><td>-0.3</td><td>-0.1</td><td>-0.2</td></tr><tr><th scope="row">Jan 2023</th><td>+0.3</td><td>+0.5</td><td>+1.0</td><td>+0.2</td><td>+0.5</td></tr><tr><th scope="row">Feb 2023</th><td>+0.3</td><td>+0.1</td><td>+0.3</td><td>-0.2</td><td>+0.2</td></tr><tr><th scope="row">Mar 2023</th><td>-0.1</td><td>0.0</td><td>+0.3</td><td>+0.1</td><td>+0.3</td></tr><tr><th scope="row">Apr 2023</th><td>+0.2</td><td>0.0</td><td>0.0</td><td>-0.2</td><td>0.0</td></tr><tr><th scope="row">May 2023</th><td>+0.4</td><td>+0.3</td><td>0.0</td><td>-0.1</td><td>-0.3</td></tr><tr><th scope="row">Jun 2023</th><td>-0.2</td><td>-0.2</td><td>-0.1</td><td>0.0</td><td>+0.1</td></tr><tr><th scope="row">Jul 2023</th><td>0.0</td><td>0.0</td><td>+0.1</td><td>0.0</td><td>+0.1</td></tr><tr><th scope="row">Aug 2023</th><td>+0.1</td><td>0.0</td><td>0.0</td><td>-0.1</td><td>0.0</td></tr><tr><th scope="row">Sep 2023</th><td>0.0</td><td>+0.1</td><td>0.0</td><td>+0.1</td><td>-0.1</td></tr><tr><th scope="row">Oct 2023</th><td>+0.2</td><td>0.0</td><td>+0.1</td><td>-0.2</td><td>+0.1</td></tr><tr><th scope="row">Nov 2023</th><td>+0.1</td><td>+0.2</td><td>+0.3</td><td>+0.1</td><td>+0.1</td></tr><tr><th scope="row">Dec 2023</th><td>+0.3</td><td>0.0</td><td>-0.1</td><td>-0.3</td><td>-0.1</td></tr><tr><th scope="row">Jan 2024</th><td>+0.4</td><td>+0.6</td><td>+0.3</td><td>+0.2</td><td>-0.3</td></tr><tr><th scope="row">Feb 2024</th><td>+0.4</td><td>+0.2</td><td>+0.6</td><td>-0.2</td><td>+0.4</td></tr><tr><th scope="row">Mar 2024</th><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr><tr><th scope="row">Apr 2024</th><td>+0.3</td><td>+0.3</td><td>+0.4</td><td>0.0</td><td>+0.1</td></tr><tr><th scope="row">May 2024</th><td>+0.1</td><td>+0.2</td><td>+0.1</td><td>+0.1</td><td>-0.1</td></tr><tr><th scope="row">Jun 2024</th><td>+0.1</td><td>0.0</td><td>+0.2</td><td>-0.1</td><td>+0.2</td></tr><tr><th scope="row">Jul 2024</th><td>0.0</td><td>+0.2</td><td>+0.2</td><td>+0.2</td><td>0.0</td></tr><tr><th scope="row">Aug 2024</th><td>0.0</td><td>0.0</td><td>+0.1</td><td>0.0</td><td>+0.1</td></tr><tr><th scope="row">Sep 2024</th><td>+0.3</td><td>+0.1</td><td>+0.3</td><td>-0.2</td><td>+0.2</td></tr><tr><th scope="row">Oct 2024</th><td>+0.1</td><td>+0.3</td><td>+0.4</td><td>+0.2</td><td>+0.1</td></tr><tr><th scope="row">Nov 2024</th><td>-0.1</td><td>-0.2</td><td>-0.2</td><td>-0.1</td><td>0.0</td></tr><tr><th scope="row">Dec 2024</th><td>+0.2</td><td>+0.2</td><td>+0.2</td><td>0.0</td><td>0.0</td></tr><tr><th scope="row">Jan 2025</th><td>+0.3</td><td>+0.4</td><td>+0.5</td><td>+0.1</td><td>+0.1</td></tr><tr><th scope="row">Feb 2025</th><td>0.0</td><td>-0.2</td><td>-0.2</td><td>-0.2</td><td>0.0</td></tr><tr><th scope="row">Mar 2025</th><td>+0.1</td><td>+0.1</td><td>+0.2</td><td>0.0</td><td>+0.1</td></tr><tr><th scope="row">Apr 2025</th><td>+0.1</td><td>-0.1</td><td>-0.1</td><td>-0.2</td><td>0.0</td></tr><tr><th scope="row">May 2025</th><td>-0.1</td><td>-0.1</td><td>-0.2</td><td>0.0</td><td>-0.1</td></tr><tr><th scope="row">Jun 2025</th><td>+0.1</td><td>-0.1</td><td>0.0</td><td>-0.2</td><td>+0.1</td></tr><tr><th scope="row">Jul 2025</th><td>+0.1</td><td>+0.2</td><td>+0.6</td><td>+0.1</td><td>+0.4</td></tr><tr><th scope="row">Aug 2025</th><td>0.0</td><td>-0.3</td><td>-0.1</td><td>-0.3</td><td>+0.2</td></tr><tr><th scope="row">Sep 2025</th><td>+0.1</td><td>+0.2</td><td>+0.2</td><td>+0.1</td><td>0.0</td></tr><tr><th scope="row">Oct 2025</th><td>-0.3</td><td>-0.3</td><td>-0.3</td><td>0.0</td><td>0.0</td></tr><tr><th scope="row">Nov 2025</th><td>+0.1</td><td>0.0</td><td>+0.1</td><td>-0.1</td><td>+0.1</td></tr><tr><th scope="row">Dec 2025</th><td>+0.1</td><td>+0.2</td><td>+0.1</td><td>+0.1</td><td>-0.1</td></tr><tr><th scope="row">Jan 2026</th><td>0.0</td><td>+0.1</td><td>0.0</td><td>+0.1</td><td>-0.1</td></tr><tr><th scope="row">Feb 2026</th><td>+0.2</td><td>+0.2</td><td>+0.2</td><td>0.0</td><td>0.0</td></tr><tr><th scope="row">Mar 2026</th><td>0.0</td><td>-0.1</td><td>-0.2</td><td>-0.1</td><td>-0.1</td></tr><tr><th scope="row">Apr 2026</th><td>+0.4</td><td>+0.5</td><td>+0.6</td><td>+0.1</td><td>+0.1</td></tr><tr><th scope="row">May 2026</th><td>+0.1</td><td>+0.3</td><td>+0.3</td><td>+0.2</td><td>0.0</td></tr></tbody></table></div>
+  </details>
+</section>
+
+  <h2>How good is the advance estimate?</h2>
+  
+<section class="figure">
+  <h3>Advance estimate against the first official figure</h3>
+  <p class="takeaway">Across 49 months, StatCan&#x27;s advance estimate missed the first official figure by 0.11 percentage points on average, which is better than simply repeating last month&#x27;s number.</p>
+  <dl class="framing">
+    <dt>What this shows</dt><dd>For each month, the gap between StatCan&#x27;s early advance estimate of GDP growth and the official figure it published a month later.</dd>
+    <dt>Why it matters</dt><dd>The advance estimate is the first hard signal anyone gets about the month. If it is reliably close, decisions can be made a month earlier than they otherwise could.</dd>
+  </dl>
+  
+  <p class="legend"><span class="key"><span class="swatch above" aria-hidden="true"></span>Above the line: economy stronger than the advance estimate said</span><span class="key"><span class="swatch below" aria-hidden="true"></span>Below the line: weaker</span></p>
+  <svg class="chart" viewBox="0 0 760 300" role="img" aria-labelledby="c-surprise-t c-surprise-d" xmlns="http://www.w3.org/2000/svg"><title id="c-surprise-t">Advance estimate error by month</title><desc id="c-surprise-d">Column chart. Each column is one month: how far the first official GDP figure came in above or below StatCan&#x27;s own advance estimate, in percentage points. Columns above the zero line mean the economy did better than the advance estimate said; below means worse. Average absolute miss 0.11 points over 49 months. The full figures are in the data table below this chart.</desc><line x1="52" y1="196.41" x2="744" y2="196.41" class="grid"/><text x="44" y="200.41" class="tick" text-anchor="end">-0.2</text><line x1="52" y1="67.59" x2="744" y2="67.59" class="grid"/><text x="44" y="71.59" class="tick" text-anchor="end">+0.2</text><path d="M54.68,132.00 L54.68,39.39 Q54.68,35.39 58.68,35.39 L59.44,35.39 Q63.44,35.39 63.44,39.39 L63.44,132.00 Z" class="above"/><text x="59.06" y="28.39" class="pointlabel" text-anchor="middle">+0.3</text><rect x="68.81" y="131.00" width="8.76" height="2" class="zero-mark"/><path d="M82.93,132.00 L82.93,71.59 Q82.93,67.59 86.93,67.59 L87.68,67.59 Q91.68,67.59 91.68,71.59 L91.68,132.00 Z" class="above"/><path d="M97.05,132.00 L97.05,103.80 Q97.05,99.80 101.05,99.80 L101.81,99.80 Q105.81,99.80 105.81,103.80 L105.81,132.00 Z" class="above"/><rect x="111.17" y="131.00" width="8.76" height="2" class="zero-mark"/><path d="M125.30,132.00 L125.30,103.80 Q125.30,99.80 129.30,99.80 L130.05,99.80 Q134.05,99.80 134.05,103.80 L134.05,132.00 Z" class="above"/><rect x="139.42" y="131.00" width="8.76" height="2" class="zero-mark"/><path d="M153.54,132.00 L153.54,160.20 Q153.54,164.20 157.54,164.20 L158.30,164.20 Q162.30,164.20 162.30,160.20 L162.30,132.00 Z" class="below"/><path d="M167.66,132.00 L167.66,71.59 Q167.66,67.59 171.66,67.59 L172.42,67.59 Q176.42,67.59 176.42,71.59 L176.42,132.00 Z" class="above"/><path d="M181.79,132.00 L181.79,192.41 Q181.79,196.41 185.79,196.41 L186.54,196.41 Q190.54,196.41 190.54,192.41 L190.54,132.00 Z" class="below"/><path d="M195.91,132.00 L195.91,103.80 Q195.91,99.80 199.91,99.80 L200.66,99.80 Q204.66,99.80 204.66,103.80 L204.66,132.00 Z" class="above"/><path d="M210.03,132.00 L210.03,192.41 Q210.03,196.41 214.03,196.41 L214.79,196.41 Q218.79,196.41 218.79,192.41 L218.79,132.00 Z" class="below"/><path d="M224.15,132.00 L224.15,160.20 Q224.15,164.20 228.15,164.20 L228.91,164.20 Q232.91,164.20 232.91,160.20 L232.91,132.00 Z" class="below"/><rect x="238.28" y="131.00" width="8.76" height="2" class="zero-mark"/><rect x="252.40" y="131.00" width="8.76" height="2" class="zero-mark"/><path d="M266.52,132.00 L266.52,160.20 Q266.52,164.20 270.52,164.20 L271.28,164.20 Q275.28,164.20 275.28,160.20 L275.28,132.00 Z" class="below"/><path d="M280.64,132.00 L280.64,103.80 Q280.64,99.80 284.64,99.80 L285.40,99.80 Q289.40,99.80 289.40,103.80 L289.40,132.00 Z" class="above"/><path d="M294.76,132.00 L294.76,192.41 Q294.76,196.41 298.76,196.41 L299.52,196.41 Q303.52,196.41 303.52,192.41 L303.52,132.00 Z" class="below"/><path d="M308.89,132.00 L308.89,103.80 Q308.89,99.80 312.89,99.80 L313.64,99.80 Q317.64,99.80 317.64,103.80 L317.64,132.00 Z" class="above"/><path d="M323.01,132.00 L323.01,224.61 Q323.01,228.61 327.01,228.61 L327.77,228.61 Q331.77,228.61 331.77,224.61 L331.77,132.00 Z" class="below"/><text x="327.39" y="243.61" class="pointlabel" text-anchor="middle">-0.3</text><path d="M337.13,132.00 L337.13,71.59 Q337.13,67.59 341.13,67.59 L341.89,67.59 Q345.89,67.59 345.89,71.59 L345.89,132.00 Z" class="above"/><path d="M351.25,132.00 L351.25,192.41 Q351.25,196.41 355.25,196.41 L356.01,196.41 Q360.01,196.41 360.01,192.41 L360.01,132.00 Z" class="below"/><rect x="365.38" y="131.00" width="8.76" height="2" class="zero-mark"/><rect x="379.50" y="131.00" width="8.76" height="2" class="zero-mark"/><path d="M393.62,132.00 L393.62,103.80 Q393.62,99.80 397.62,99.80 L398.38,99.80 Q402.38,99.80 402.38,103.80 L402.38,132.00 Z" class="above"/><path d="M407.74,132.00 L407.74,160.20 Q407.74,164.20 411.74,164.20 L412.50,164.20 Q416.50,164.20 416.50,160.20 L416.50,132.00 Z" class="below"/><path d="M421.87,132.00 L421.87,71.59 Q421.87,67.59 425.87,67.59 L426.62,67.59 Q430.62,67.59 430.62,71.59 L430.62,132.00 Z" class="above"/><rect x="435.99" y="131.00" width="8.76" height="2" class="zero-mark"/><path d="M450.11,132.00 L450.11,192.41 Q450.11,196.41 454.11,196.41 L454.87,196.41 Q458.87,196.41 458.87,192.41 L458.87,132.00 Z" class="below"/><path d="M464.23,132.00 L464.23,71.59 Q464.23,67.59 468.23,67.59 L468.99,67.59 Q472.99,67.59 472.99,71.59 L472.99,132.00 Z" class="above"/><path d="M478.36,132.00 L478.36,160.20 Q478.36,164.20 482.36,164.20 L483.11,164.20 Q487.11,164.20 487.11,160.20 L487.11,132.00 Z" class="below"/><rect x="492.48" y="131.00" width="8.76" height="2" class="zero-mark"/><path d="M506.60,132.00 L506.60,103.80 Q506.60,99.80 510.60,99.80 L511.36,99.80 Q515.36,99.80 515.36,103.80 L515.36,132.00 Z" class="above"/><path d="M520.72,132.00 L520.72,192.41 Q520.72,196.41 524.72,196.41 L525.48,196.41 Q529.48,196.41 529.48,192.41 L529.48,132.00 Z" class="below"/><rect x="534.85" y="131.00" width="8.76" height="2" class="zero-mark"/><path d="M548.97,132.00 L548.97,192.41 Q548.97,196.41 552.97,196.41 L553.72,196.41 Q557.72,196.41 557.72,192.41 L557.72,132.00 Z" class="below"/><rect x="563.09" y="131.00" width="8.76" height="2" class="zero-mark"/><path d="M577.21,132.00 L577.21,192.41 Q577.21,196.41 581.21,196.41 L581.97,196.41 Q585.97,196.41 585.97,192.41 L585.97,132.00 Z" class="below"/><path d="M591.34,132.00 L591.34,103.80 Q591.34,99.80 595.34,99.80 L596.09,99.80 Q600.09,99.80 600.09,103.80 L600.09,132.00 Z" class="above"/><path d="M605.46,132.00 L605.46,224.61 Q605.46,228.61 609.46,228.61 L610.21,228.61 Q614.21,228.61 614.21,224.61 L614.21,132.00 Z" class="below"/><path d="M619.58,132.00 L619.58,103.80 Q619.58,99.80 623.58,99.80 L624.34,99.80 Q628.34,99.80 628.34,103.80 L628.34,132.00 Z" class="above"/><rect x="633.70" y="131.00" width="8.76" height="2" class="zero-mark"/><path d="M647.83,132.00 L647.83,160.20 Q647.83,164.20 651.83,164.20 L652.58,164.20 Q656.58,164.20 656.58,160.20 L656.58,132.00 Z" class="below"/><path d="M661.95,132.00 L661.95,103.80 Q661.95,99.80 665.95,99.80 L666.70,99.80 Q670.70,99.80 670.70,103.80 L670.70,132.00 Z" class="above"/><path d="M676.07,132.00 L676.07,103.80 Q676.07,99.80 680.07,99.80 L680.83,99.80 Q684.83,99.80 684.83,103.80 L684.83,132.00 Z" class="above"/><rect x="690.19" y="131.00" width="8.76" height="2" class="zero-mark"/><path d="M704.32,132.00 L704.32,160.20 Q704.32,164.20 708.32,164.20 L709.07,164.20 Q713.07,164.20 713.07,160.20 L713.07,132.00 Z" class="below"/><path d="M718.44,132.00 L718.44,103.80 Q718.44,99.80 722.44,99.80 L723.19,99.80 Q727.19,99.80 727.19,103.80 L727.19,132.00 Z" class="above"/><path d="M732.56,132.00 L732.56,71.59 Q732.56,67.59 736.56,67.59 L737.32,67.59 Q741.32,67.59 741.32,71.59 L741.32,132.00 Z" class="above"/><line x1="52" y1="132.00" x2="744" y2="132.00" class="axis"/><text x="59.06" y="266" class="tick" text-anchor="middle">Nov 2021</text><text x="129.67" y="266" class="tick" text-anchor="middle">Oct 2022</text><text x="200.29" y="266" class="tick" text-anchor="middle">Mar 2023</text><text x="270.90" y="266" class="tick" text-anchor="middle">Aug 2023</text><text x="341.51" y="266" class="tick" text-anchor="middle">Jan 2024</text><text x="412.12" y="266" class="tick" text-anchor="middle">Jun 2024</text><text x="482.73" y="266" class="tick" text-anchor="middle">Nov 2024</text><text x="553.35" y="266" class="tick" text-anchor="middle">Apr 2025</text><text x="623.96" y="266" class="tick" text-anchor="middle">Sep 2025</text><text x="694.57" y="266" class="tick" text-anchor="middle">Feb 2026</text><text x="52" y="292" class="axistitle">percentage points &#8212; stronger than the advance estimate above the line, weaker below</text></svg>
+  <details>
+    <summary>Show the numbers behind this chart</summary>
+    <p class="tablenote">Positive means the official figure came in above the advance estimate.</p>
+    <div class="tablewrap"><table><caption>Every month in the scorecard. Blank cells mean the figure was not available for that month.</caption><thead><tr><th scope="col">Month</th><th scope="col">Advance estimate (%)</th><th scope="col">First print (%)</th><th scope="col">Latest revised (%)</th><th scope="col">Surprise (pp)</th><th scope="col">Revision (pp)</th></tr></thead><tbody><tr><th scope="row">Jun 2021</th><td>—</td><td>+0.7</td><td>+0.9</td><td>—</td><td>+0.2</td></tr><tr><th scope="row">Jul 2021</th><td>—</td><td>-0.1</td><td>+0.7</td><td>—</td><td>+0.8</td></tr><tr><th scope="row">Aug 2021</th><td>—</td><td>+0.4</td><td>+0.8</td><td>—</td><td>+0.4</td></tr><tr><th scope="row">Sep 2021</th><td>—</td><td>+0.1</td><td>+0.5</td><td>—</td><td>+0.4</td></tr><tr><th scope="row">Oct 2021</th><td>—</td><td>+0.8</td><td>+0.8</td><td>—</td><td>0.0</td></tr><tr><th scope="row">Nov 2021</th><td>+0.3</td><td>+0.6</td><td>+0.5</td><td>+0.3</td><td>-0.1</td></tr><tr><th scope="row">Dec 2021</th><td>—</td><td>0.0</td><td>+0.4</td><td>—</td><td>+0.4</td></tr><tr><th scope="row">Jan 2022</th><td>—</td><td>+0.2</td><td>-0.2</td><td>—</td><td>-0.4</td></tr><tr><th scope="row">Feb 2022</th><td>—</td><td>+1.1</td><td>+1.1</td><td>—</td><td>0.0</td></tr><tr><th scope="row">Mar 2022</th><td>—</td><td>+0.7</td><td>+0.6</td><td>—</td><td>-0.1</td></tr><tr><th scope="row">May 2022</th><td>—</td><td>0.0</td><td>+0.2</td><td>—</td><td>+0.2</td></tr><tr><th scope="row">Jun 2022</th><td>+0.1</td><td>+0.1</td><td>+0.4</td><td>0.0</td><td>+0.3</td></tr><tr><th scope="row">Jul 2022</th><td>-0.1</td><td>+0.1</td><td>+0.1</td><td>+0.2</td><td>0.0</td></tr><tr><th scope="row">Aug 2022</th><td>0.0</td><td>+0.1</td><td>+0.3</td><td>+0.1</td><td>+0.2</td></tr><tr><th scope="row">Sep 2022</th><td>+0.1</td><td>+0.1</td><td>+0.2</td><td>0.0</td><td>+0.1</td></tr><tr><th scope="row">Oct 2022</th><td>0.0</td><td>+0.1</td><td>-0.1</td><td>+0.1</td><td>-0.2</td></tr><tr><th scope="row">Nov 2022</th><td>+0.1</td><td>+0.1</td><td>-0.1</td><td>0.0</td><td>-0.2</td></tr><tr><th scope="row">Dec 2022</th><td>0.0</td><td>-0.1</td><td>-0.3</td><td>-0.1</td><td>-0.2</td></tr><tr><th scope="row">Jan 2023</th><td>+0.3</td><td>+0.5</td><td>+1.0</td><td>+0.2</td><td>+0.5</td></tr><tr><th scope="row">Feb 2023</th><td>+0.3</td><td>+0.1</td><td>+0.3</td><td>-0.2</td><td>+0.2</td></tr><tr><th scope="row">Mar 2023</th><td>-0.1</td><td>0.0</td><td>+0.3</td><td>+0.1</td><td>+0.3</td></tr><tr><th scope="row">Apr 2023</th><td>+0.2</td><td>0.0</td><td>0.0</td><td>-0.2</td><td>0.0</td></tr><tr><th scope="row">May 2023</th><td>+0.4</td><td>+0.3</td><td>0.0</td><td>-0.1</td><td>-0.3</td></tr><tr><th scope="row">Jun 2023</th><td>-0.2</td><td>-0.2</td><td>-0.1</td><td>0.0</td><td>+0.1</td></tr><tr><th scope="row">Jul 2023</th><td>0.0</td><td>0.0</td><td>+0.1</td><td>0.0</td><td>+0.1</td></tr><tr><th scope="row">Aug 2023</th><td>+0.1</td><td>0.0</td><td>0.0</td><td>-0.1</td><td>0.0</td></tr><tr><th scope="row">Sep 2023</th><td>0.0</td><td>+0.1</td><td>0.0</td><td>+0.1</td><td>-0.1</td></tr><tr><th scope="row">Oct 2023</th><td>+0.2</td><td>0.0</td><td>+0.1</td><td>-0.2</td><td>+0.1</td></tr><tr><th scope="row">Nov 2023</th><td>+0.1</td><td>+0.2</td><td>+0.3</td><td>+0.1</td><td>+0.1</td></tr><tr><th scope="row">Dec 2023</th><td>+0.3</td><td>0.0</td><td>-0.1</td><td>-0.3</td><td>-0.1</td></tr><tr><th scope="row">Jan 2024</th><td>+0.4</td><td>+0.6</td><td>+0.3</td><td>+0.2</td><td>-0.3</td></tr><tr><th scope="row">Feb 2024</th><td>+0.4</td><td>+0.2</td><td>+0.6</td><td>-0.2</td><td>+0.4</td></tr><tr><th scope="row">Mar 2024</th><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr><tr><th scope="row">Apr 2024</th><td>+0.3</td><td>+0.3</td><td>+0.4</td><td>0.0</td><td>+0.1</td></tr><tr><th scope="row">May 2024</th><td>+0.1</td><td>+0.2</td><td>+0.1</td><td>+0.1</td><td>-0.1</td></tr><tr><th scope="row">Jun 2024</th><td>+0.1</td><td>0.0</td><td>+0.2</td><td>-0.1</td><td>+0.2</td></tr><tr><th scope="row">Jul 2024</th><td>0.0</td><td>+0.2</td><td>+0.2</td><td>+0.2</td><td>0.0</td></tr><tr><th scope="row">Aug 2024</th><td>0.0</td><td>0.0</td><td>+0.1</td><td>0.0</td><td>+0.1</td></tr><tr><th scope="row">Sep 2024</th><td>+0.3</td><td>+0.1</td><td>+0.3</td><td>-0.2</td><td>+0.2</td></tr><tr><th scope="row">Oct 2024</th><td>+0.1</td><td>+0.3</td><td>+0.4</td><td>+0.2</td><td>+0.1</td></tr><tr><th scope="row">Nov 2024</th><td>-0.1</td><td>-0.2</td><td>-0.2</td><td>-0.1</td><td>0.0</td></tr><tr><th scope="row">Dec 2024</th><td>+0.2</td><td>+0.2</td><td>+0.2</td><td>0.0</td><td>0.0</td></tr><tr><th scope="row">Jan 2025</th><td>+0.3</td><td>+0.4</td><td>+0.5</td><td>+0.1</td><td>+0.1</td></tr><tr><th scope="row">Feb 2025</th><td>0.0</td><td>-0.2</td><td>-0.2</td><td>-0.2</td><td>0.0</td></tr><tr><th scope="row">Mar 2025</th><td>+0.1</td><td>+0.1</td><td>+0.2</td><td>0.0</td><td>+0.1</td></tr><tr><th scope="row">Apr 2025</th><td>+0.1</td><td>-0.1</td><td>-0.1</td><td>-0.2</td><td>0.0</td></tr><tr><th scope="row">May 2025</th><td>-0.1</td><td>-0.1</td><td>-0.2</td><td>0.0</td><td>-0.1</td></tr><tr><th scope="row">Jun 2025</th><td>+0.1</td><td>-0.1</td><td>0.0</td><td>-0.2</td><td>+0.1</td></tr><tr><th scope="row">Jul 2025</th><td>+0.1</td><td>+0.2</td><td>+0.6</td><td>+0.1</td><td>+0.4</td></tr><tr><th scope="row">Aug 2025</th><td>0.0</td><td>-0.3</td><td>-0.1</td><td>-0.3</td><td>+0.2</td></tr><tr><th scope="row">Sep 2025</th><td>+0.1</td><td>+0.2</td><td>+0.2</td><td>+0.1</td><td>0.0</td></tr><tr><th scope="row">Oct 2025</th><td>-0.3</td><td>-0.3</td><td>-0.3</td><td>0.0</td><td>0.0</td></tr><tr><th scope="row">Nov 2025</th><td>+0.1</td><td>0.0</td><td>+0.1</td><td>-0.1</td><td>+0.1</td></tr><tr><th scope="row">Dec 2025</th><td>+0.1</td><td>+0.2</td><td>+0.1</td><td>+0.1</td><td>-0.1</td></tr><tr><th scope="row">Jan 2026</th><td>0.0</td><td>+0.1</td><td>0.0</td><td>+0.1</td><td>-0.1</td></tr><tr><th scope="row">Feb 2026</th><td>+0.2</td><td>+0.2</td><td>+0.2</td><td>0.0</td><td>0.0</td></tr><tr><th scope="row">Mar 2026</th><td>0.0</td><td>-0.1</td><td>-0.2</td><td>-0.1</td><td>-0.1</td></tr><tr><th scope="row">Apr 2026</th><td>+0.4</td><td>+0.5</td><td>+0.6</td><td>+0.1</td><td>+0.1</td></tr><tr><th scope="row">May 2026</th><td>+0.1</td><td>+0.3</td><td>+0.3</td><td>+0.2</td><td>0.0</td></tr></tbody></table></div>
+  </details>
+</section>
+
+  
+<section class="figure">
+  <h3>Does the advance estimate beat just guessing?</h3>
+  <p class="takeaway">The advance estimate does beat both naive rules, cutting the average miss by 52% against simply repeating last month&#x27;s number. Both naive rules are computed only from figures that had actually been published at the time, so they are not given information from the future.</p>
+  <dl class="framing">
+    <dt>What this shows</dt><dd>The advance estimate&#x27;s average miss, next to two rules that use no judgement at all: repeat last month&#x27;s growth, or average the last three months.</dd>
+    <dt>Why it matters</dt><dd>A forecast is only worth producing if it beats a rule anyone could apply in their head. This is the benchmark every other number on the page is measured against.</dd>
+  </dl>
+  
+  
+  <svg class="chart" viewBox="0 0 760 190" role="img" aria-labelledby="c-score-t c-score-d" xmlns="http://www.w3.org/2000/svg"><title id="c-score-t">Average miss: advance estimate against two naive rules</title><desc id="c-score-d">Horizontal bar chart comparing average absolute error in percentage points over the same 49 months. StatCan&#x27;s advance estimate 0.11; repeating last month&#x27;s figure 0.23; a three-month average 0.17. Shorter is better.</desc><text x="198" y="35.00" class="rowlabel" text-anchor="end">StatCan advance estimate</text><path d="M210,18.00 L417.68,18.00 Q421.68,18.00 421.68,22.00 L421.68,38.00 Q421.68,42.00 417.68,42.00 L210,42.00 Z" class="focus"/><text x="431.68" y="35.00" class="pointlabel">0.11</text><text x="198" y="89.00" class="rowlabel" text-anchor="end">Naive: repeat last month</text><path d="M210,72.00 L642.36,72.00 Q646.36,72.00 646.36,76.00 L646.36,92.00 Q646.36,96.00 642.36,96.00 L210,96.00 Z" class="context"/><text x="656.36" y="89.00" class="pointlabel">0.23</text><text x="198" y="143.00" class="rowlabel" text-anchor="end">Naive: 3-month average</text><path d="M210,126.00 L523.52,126.00 Q527.52,126.00 527.52,130.00 L527.52,146.00 Q527.52,150.00 523.52,150.00 L210,150.00 Z" class="context"/><text x="537.52" y="143.00" class="pointlabel">0.17</text><text x="210" y="188" class="axistitle">average absolute error, percentage points (shorter is better)</text></svg>
+  <details>
+    <summary>Show the numbers behind this chart</summary>
+    <p class="tablenote">Average absolute error in percentage points, lower is better, over the 49 months where all three methods could be compared.</p>
+    <div class="tablewrap"><table><caption>Average absolute error over the months where all three could be compared. Lower is better.</caption><thead><tr><th scope="col">Method</th><th scope="col">Average miss (pp)</th><th scope="col">Months compared</th></tr></thead><tbody><tr><th scope="row">StatCan advance estimate</th><td>0.11</td><td>49</td></tr><tr><th scope="row">Naive: repeat last month</th><td>0.23</td><td>49</td></tr><tr><th scope="row">Naive: 3-month average</th><td>0.17</td><td>49</td></tr></tbody></table></div>
+  </details>
+</section>
+
+  <h2>What the Bank of Canada was doing</h2>
+  
+<section class="figure">
+  <h3>Policy interest rate over the same period</h3>
+  <p class="takeaway">The policy rate stood at 2.25% in Aug 2026, against 0.25% at the start of the period shown. Nothing on this page scores the Bank of Canada.</p>
+  <dl class="framing">
+    <dt>What this shows</dt><dd>The Bank of Canada&#x27;s target for the overnight rate, month by month.</dd>
+    <dt>Why it matters</dt><dd>Context, not a score. It shows what the interest-rate backdrop was while these forecast errors were being made.</dd>
+  </dl>
+  
+  
+  <svg class="chart" viewBox="0 0 760 210" role="img" aria-labelledby="c-rate-t c-rate-d" xmlns="http://www.w3.org/2000/svg"><title id="c-rate-t">Bank of Canada target for the overnight rate</title><desc id="c-rate-d">Line chart of the Bank of Canada&#x27;s policy interest rate over the same period, ending at 2.25 percent in Aug 2026. Shown as background context only; it is not scored anywhere on this page.</desc><line x1="52" y1="152.91" x2="744" y2="152.91" class="grid"/><text x="44" y="156.91" class="tick" text-anchor="end">0.00</text><line x1="52" y1="104.98" x2="744" y2="104.98" class="grid"/><text x="44" y="108.98" class="tick" text-anchor="end">2.00</text><line x1="52" y1="57.04" x2="744" y2="57.04" class="grid"/><text x="44" y="61.04" class="tick" text-anchor="end">4.00</text><polyline points="52.00,146.92 63.16,146.92 74.32,146.92 85.48,146.92 96.65,146.92 107.81,146.92 118.97,146.92 130.13,146.92 141.29,146.92 152.45,140.93 163.61,128.95 174.77,128.95 185.94,116.96 197.10,93.00 208.26,93.00 219.42,75.02 230.58,63.04 241.74,63.04 252.90,51.05 264.06,45.06 275.23,45.06 286.39,45.06 297.55,45.06 308.71,45.06 319.87,39.07 331.03,33.08 342.19,33.08 353.35,33.08 364.52,33.08 375.68,33.08 386.84,33.08 398.00,33.08 409.16,33.08 420.32,33.08 431.48,33.08 442.65,33.08 453.81,39.07 464.97,45.06 476.13,45.06 487.29,51.05 498.45,63.04 509.61,63.04 520.77,75.02 531.94,81.01 543.10,81.01 554.26,87.00 565.42,87.00 576.58,87.00 587.74,87.00 598.90,87.00 610.06,87.00 621.23,93.00 632.39,98.99 643.55,98.99 654.71,98.99 665.87,98.99 677.03,98.99 688.19,98.99 699.35,98.99 710.52,98.99 721.68,98.99 732.84,98.99 744.00,98.99" class="line"/><circle cx="744.00" cy="98.99" r="5" class="endmark"/><text x="734.00" y="86.99" class="pointlabel" text-anchor="end">2.25%</text><text x="52.00" y="184" class="tick" text-anchor="middle">Jun 2021</text><text x="141.29" y="184" class="tick" text-anchor="middle">Feb 2022</text><text x="230.58" y="184" class="tick" text-anchor="middle">Oct 2022</text><text x="319.87" y="184" class="tick" text-anchor="middle">Jun 2023</text><text x="409.16" y="184" class="tick" text-anchor="middle">Feb 2024</text><text x="498.45" y="184" class="tick" text-anchor="middle">Oct 2024</text><text x="587.74" y="184" class="tick" text-anchor="middle">Jun 2025</text><text x="677.03" y="184" class="tick" text-anchor="middle">Feb 2026</text><text x="744.00" y="184" class="tick" text-anchor="middle">Aug 2026</text><text x="52" y="204" class="axistitle">percent, month-end value</text></svg>
+  <details>
+    <summary>Show the numbers behind this chart</summary>
+    <p class="tablenote">Month-end value of the target for the overnight rate.</p>
+    <div class="tablewrap"><table><caption>Bank of Canada target for the overnight rate, month-end.</caption><thead><tr><th scope="col">Month</th><th scope="col">Policy rate (%)</th></tr></thead><tbody><tr><th scope="row">Jun 2021</th><td>0.25</td></tr><tr><th scope="row">Jul 2021</th><td>0.25</td></tr><tr><th scope="row">Aug 2021</th><td>0.25</td></tr><tr><th scope="row">Sep 2021</th><td>0.25</td></tr><tr><th scope="row">Oct 2021</th><td>0.25</td></tr><tr><th scope="row">Nov 2021</th><td>0.25</td></tr><tr><th scope="row">Dec 2021</th><td>0.25</td></tr><tr><th scope="row">Jan 2022</th><td>0.25</td></tr><tr><th scope="row">Feb 2022</th><td>0.25</td></tr><tr><th scope="row">Mar 2022</th><td>0.50</td></tr><tr><th scope="row">Apr 2022</th><td>1.00</td></tr><tr><th scope="row">May 2022</th><td>1.00</td></tr><tr><th scope="row">Jun 2022</th><td>1.50</td></tr><tr><th scope="row">Jul 2022</th><td>2.50</td></tr><tr><th scope="row">Aug 2022</th><td>2.50</td></tr><tr><th scope="row">Sep 2022</th><td>3.25</td></tr><tr><th scope="row">Oct 2022</th><td>3.75</td></tr><tr><th scope="row">Nov 2022</th><td>3.75</td></tr><tr><th scope="row">Dec 2022</th><td>4.25</td></tr><tr><th scope="row">Jan 2023</th><td>4.50</td></tr><tr><th scope="row">Feb 2023</th><td>4.50</td></tr><tr><th scope="row">Mar 2023</th><td>4.50</td></tr><tr><th scope="row">Apr 2023</th><td>4.50</td></tr><tr><th scope="row">May 2023</th><td>4.50</td></tr><tr><th scope="row">Jun 2023</th><td>4.75</td></tr><tr><th scope="row">Jul 2023</th><td>5.00</td></tr><tr><th scope="row">Aug 2023</th><td>5.00</td></tr><tr><th scope="row">Sep 2023</th><td>5.00</td></tr><tr><th scope="row">Oct 2023</th><td>5.00</td></tr><tr><th scope="row">Nov 2023</th><td>5.00</td></tr><tr><th scope="row">Dec 2023</th><td>5.00</td></tr><tr><th scope="row">Jan 2024</th><td>5.00</td></tr><tr><th scope="row">Feb 2024</th><td>5.00</td></tr><tr><th scope="row">Mar 2024</th><td>5.00</td></tr><tr><th scope="row">Apr 2024</th><td>5.00</td></tr><tr><th scope="row">May 2024</th><td>5.00</td></tr><tr><th scope="row">Jun 2024</th><td>4.75</td></tr><tr><th scope="row">Jul 2024</th><td>4.50</td></tr><tr><th scope="row">Aug 2024</th><td>4.50</td></tr><tr><th scope="row">Sep 2024</th><td>4.25</td></tr><tr><th scope="row">Oct 2024</th><td>3.75</td></tr><tr><th scope="row">Nov 2024</th><td>3.75</td></tr><tr><th scope="row">Dec 2024</th><td>3.25</td></tr><tr><th scope="row">Jan 2025</th><td>3.00</td></tr><tr><th scope="row">Feb 2025</th><td>3.00</td></tr><tr><th scope="row">Mar 2025</th><td>2.75</td></tr><tr><th scope="row">Apr 2025</th><td>2.75</td></tr><tr><th scope="row">May 2025</th><td>2.75</td></tr><tr><th scope="row">Jun 2025</th><td>2.75</td></tr><tr><th scope="row">Jul 2025</th><td>2.75</td></tr><tr><th scope="row">Aug 2025</th><td>2.75</td></tr><tr><th scope="row">Sep 2025</th><td>2.50</td></tr><tr><th scope="row">Oct 2025</th><td>2.25</td></tr><tr><th scope="row">Nov 2025</th><td>2.25</td></tr><tr><th scope="row">Dec 2025</th><td>2.25</td></tr><tr><th scope="row">Jan 2026</th><td>2.25</td></tr><tr><th scope="row">Feb 2026</th><td>2.25</td></tr><tr><th scope="row">Mar 2026</th><td>2.25</td></tr><tr><th scope="row">Apr 2026</th><td>2.25</td></tr><tr><th scope="row">May 2026</th><td>2.25</td></tr><tr><th scope="row">Jun 2026</th><td>2.25</td></tr><tr><th scope="row">Jul 2026</th><td>2.25</td></tr><tr><th scope="row">Aug 2026</th><td>2.25</td></tr></tbody></table></div>
+  </details>
+</section>
+
+  <div class="callout"><h2>Releases this page could not read</h2><p>These StatCan bulletins used wording the parser did not recognise, so they are excluded from every figure above. They are listed here rather than dropped silently, because quietly discarding the awkwardly-worded months would bias the results toward the tidy ones.</p><ul><li>2022-06-30: first-print sentence not found; advance-estimate sentence not found</li><li>2022-04-29: advance month not found</li><li>2022-03-31: advance-estimate sentence not found</li><li>2022-03-01: advance-estimate sentence not found</li><li>2022-02-01: advance month not found</li><li>2021-11-30: advance-estimate sentence not found</li><li>2021-10-29: advance-estimate sentence not found</li><li>2021-10-01: advance-estimate sentence not found</li><li>2021-08-31: advance-estimate sentence not found</li></ul></div>
+
+  <h2>What the words mean</h2>
+  <dl class="glossary">
+    <dt>Advance estimate</dt>
+    <dd>A preliminary figure Statistics Canada publishes for the following month,
+        inside each monthly GDP release, based on incomplete source data. It is an
+        official, on-the-record forecast from the agency itself.</dd>
+    <dt>First print</dt>
+    <dd>The first official figure for a month. This is the number that appears in
+        headlines and that markets react to on release day.</dd>
+    <dt>Revision</dt>
+    <dd>A later change to an already-published figure, as more complete source data
+        arrives. Revisions continue for years after the first print.</dd>
+    <dt>Percentage point (pp)</dt>
+    <dd>The unit for a gap between two percentages. If the advance estimate said
+        growth of 0.2% and the official figure was 0.5%, the miss is 0.3 percentage
+        points.</dd>
+    <dt>Naive benchmark</dt>
+    <dd>A deliberately simple rule &#8212; here, repeating last month's figure, or
+        averaging the last three. Any forecast that cannot beat it is not adding
+        information.</dd>
+  </dl>
+
+  <h2>How this was built, and what it cannot tell you</h2>
+  <p>Every number above comes from two free, openly-licensed sources: the
+     <a href="https://www150.statcan.gc.ca/t1/wds/rest/">Statistics Canada Web Data
+     Service</a> (table 36-10-0434-01, monthly GDP by industry, seasonally adjusted,
+     chained 2017 dollars) and the
+     <a href="https://www.bankofcanada.ca/valet/docs">Bank of Canada Valet API</a>.
+     No paid or licensed forecast data is used anywhere.</p>
+  <p>The advance estimates and first prints are not available from the API at all.
+     Statistics Canada's data service returns only current, fully-revised values, so
+     it cannot tell you what a figure said on the day it was released. Those numbers
+     were recovered from <a href="https://www150.statcan.gc.ca/n1/dai-quo/index-eng.htm">The
+     Daily</a>, StatCan's official release bulletin, which states both figures on the
+     record in every monthly GDP release.</p>
+  <ul>
+    <li><strong>Rounding limits the precision.</strong> StatCan publishes these
+        changes to one decimal place, so revisions smaller than 0.1 percentage
+        points are invisible to this method.</li>
+    <li><strong>The sample is short.</strong> 49 months is enough to describe
+        what happened but not enough to settle whether a small average bias is real.
+        Where a figure is too small to distinguish from zero, the page says so.</li>
+    <li><strong>Recent months are under-revised.</strong> The most recent months have
+        had less time to be revised than older ones, which mechanically shrinks their
+        revisions.</li>
+    <li><strong>CPI and the Labour Force Survey are not scored here.</strong>
+        Neither publishes an advance estimate, so the central comparison on this page
+        does not exist for them. Adding them would have meant a different, weaker
+        chart rather than the same one with more data.</li>
+  </ul>
+</main>
+
+<footer>
+  <p>Built by a fourth-year Bachelor of Commerce student at the DeGroote School of
+     Business, McMaster University, as a free-data rebuild of the ideas in the
+     Bloomberg Market Concepts Economic Indicators module. No Bloomberg data is
+     used anywhere in this project.</p>
+  <p>Contains information licensed under the
+     <a href="https://www.statcan.gc.ca/en/reference/licence">Statistics Canada Open
+     Licence</a>. Bank of Canada data used under the
+     <a href="https://www.bankofcanada.ca/terms/">Bank of Canada Terms of Use</a>.
+     This page is not endorsed by, or affiliated with, either institution.</p>
+  <p>Rebuilt automatically each month. Page generated 2026-08-09 14:06 UTC.</p>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,1262 @@
+{
+ "generated": "2026-08-09 14:06 UTC",
+ "source_release": "2026-08-09",
+ "series_title": "Canada;Seasonally adjusted at annual rates;Chained (2017) dollars;All industries",
+ "coverage": {
+  "releases_crawled": 60,
+  "months_with_first_print": 59,
+  "months_with_advance": 49,
+  "months_with_revision": 59,
+  "first_month": "2021-06",
+  "last_month": "2026-05",
+  "parse_failures": [
+   {
+    "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/220630/dq220630a-eng.htm",
+    "release_date": "2022-06-30",
+    "problems": [
+     "first-print sentence not found",
+     "advance-estimate sentence not found"
+    ]
+   },
+   {
+    "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/220429/dq220429a-eng.htm",
+    "release_date": "2022-04-29",
+    "problems": [
+     "advance month not found"
+    ]
+   },
+   {
+    "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/220331/dq220331a-eng.htm",
+    "release_date": "2022-03-31",
+    "problems": [
+     "advance-estimate sentence not found"
+    ]
+   },
+   {
+    "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/220301/dq220301b-eng.htm",
+    "release_date": "2022-03-01",
+    "problems": [
+     "advance-estimate sentence not found"
+    ]
+   },
+   {
+    "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/220201/dq220201a-eng.htm",
+    "release_date": "2022-02-01",
+    "problems": [
+     "advance month not found"
+    ]
+   },
+   {
+    "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/211130/dq211130b-eng.htm",
+    "release_date": "2021-11-30",
+    "problems": [
+     "advance-estimate sentence not found"
+    ]
+   },
+   {
+    "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/211029/dq211029a-eng.htm",
+    "release_date": "2021-10-29",
+    "problems": [
+     "advance-estimate sentence not found"
+    ]
+   },
+   {
+    "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/211001/dq211001a-eng.htm",
+    "release_date": "2021-10-01",
+    "problems": [
+     "advance-estimate sentence not found"
+    ]
+   },
+   {
+    "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/210831/dq210831b-eng.htm",
+    "release_date": "2021-08-31",
+    "problems": [
+     "advance-estimate sentence not found"
+    ]
+   }
+  ]
+ },
+ "records": [
+  {
+   "month": "2021-06",
+   "label": "Jun 2021",
+   "release_date": "2021-08-31",
+   "advance": null,
+   "first_print": 0.7,
+   "revised": 0.9,
+   "naive_rw": null,
+   "naive_ma3": null,
+   "surprise": null,
+   "revision": 0.2,
+   "err_rw": null,
+   "err_ma3": null
+  },
+  {
+   "month": "2021-07",
+   "label": "Jul 2021",
+   "release_date": "2021-10-01",
+   "advance": null,
+   "first_print": -0.1,
+   "revised": 0.7,
+   "naive_rw": 0.7,
+   "naive_ma3": null,
+   "surprise": null,
+   "revision": 0.8,
+   "err_rw": -0.8,
+   "err_ma3": null
+  },
+  {
+   "month": "2021-08",
+   "label": "Aug 2021",
+   "release_date": "2021-10-29",
+   "advance": null,
+   "first_print": 0.4,
+   "revised": 0.8,
+   "naive_rw": -0.1,
+   "naive_ma3": null,
+   "surprise": null,
+   "revision": 0.4,
+   "err_rw": 0.5,
+   "err_ma3": null
+  },
+  {
+   "month": "2021-09",
+   "label": "Sep 2021",
+   "release_date": "2021-11-30",
+   "advance": null,
+   "first_print": 0.1,
+   "revised": 0.5,
+   "naive_rw": 0.4,
+   "naive_ma3": 0.3,
+   "surprise": null,
+   "revision": 0.4,
+   "err_rw": -0.3,
+   "err_ma3": -0.2
+  },
+  {
+   "month": "2021-10",
+   "label": "Oct 2021",
+   "release_date": "2021-12-23",
+   "advance": null,
+   "first_print": 0.8,
+   "revised": 0.8,
+   "naive_rw": 0.1,
+   "naive_ma3": 0.1,
+   "surprise": null,
+   "revision": 0.0,
+   "err_rw": 0.7,
+   "err_ma3": 0.7
+  },
+  {
+   "month": "2021-11",
+   "label": "Nov 2021",
+   "release_date": "2022-02-01",
+   "advance": 0.3,
+   "first_print": 0.6,
+   "revised": 0.5,
+   "naive_rw": 0.8,
+   "naive_ma3": 0.4,
+   "surprise": 0.3,
+   "revision": -0.1,
+   "err_rw": -0.2,
+   "err_ma3": 0.2
+  },
+  {
+   "month": "2021-12",
+   "label": "Dec 2021",
+   "release_date": "2022-03-01",
+   "advance": null,
+   "first_print": 0.0,
+   "revised": 0.4,
+   "naive_rw": 0.6,
+   "naive_ma3": 0.5,
+   "surprise": null,
+   "revision": 0.4,
+   "err_rw": -0.6,
+   "err_ma3": -0.5
+  },
+  {
+   "month": "2022-01",
+   "label": "Jan 2022",
+   "release_date": "2022-03-31",
+   "advance": null,
+   "first_print": 0.2,
+   "revised": -0.2,
+   "naive_rw": 0.0,
+   "naive_ma3": 0.5,
+   "surprise": null,
+   "revision": -0.4,
+   "err_rw": 0.2,
+   "err_ma3": -0.3
+  },
+  {
+   "month": "2022-02",
+   "label": "Feb 2022",
+   "release_date": "2022-04-29",
+   "advance": null,
+   "first_print": 1.1,
+   "revised": 1.1,
+   "naive_rw": 0.2,
+   "naive_ma3": 0.3,
+   "surprise": null,
+   "revision": 0.0,
+   "err_rw": 0.9,
+   "err_ma3": 0.8
+  },
+  {
+   "month": "2022-03",
+   "label": "Mar 2022",
+   "release_date": "2022-05-31",
+   "advance": null,
+   "first_print": 0.7,
+   "revised": 0.6,
+   "naive_rw": 1.1,
+   "naive_ma3": 0.4,
+   "surprise": null,
+   "revision": -0.1,
+   "err_rw": -0.4,
+   "err_ma3": 0.3
+  },
+  {
+   "month": "2022-05",
+   "label": "May 2022",
+   "release_date": "2022-07-29",
+   "advance": null,
+   "first_print": 0.0,
+   "revised": 0.2,
+   "naive_rw": 0.7,
+   "naive_ma3": 0.7,
+   "surprise": null,
+   "revision": 0.2,
+   "err_rw": -0.7,
+   "err_ma3": -0.7
+  },
+  {
+   "month": "2022-06",
+   "label": "Jun 2022",
+   "release_date": "2022-08-31",
+   "advance": 0.1,
+   "first_print": 0.1,
+   "revised": 0.4,
+   "naive_rw": 0.0,
+   "naive_ma3": 0.6,
+   "surprise": 0.0,
+   "revision": 0.3,
+   "err_rw": 0.1,
+   "err_ma3": -0.5
+  },
+  {
+   "month": "2022-07",
+   "label": "Jul 2022",
+   "release_date": "2022-09-29",
+   "advance": -0.1,
+   "first_print": 0.1,
+   "revised": 0.1,
+   "naive_rw": 0.1,
+   "naive_ma3": 0.3,
+   "surprise": 0.2,
+   "revision": 0.0,
+   "err_rw": 0.0,
+   "err_ma3": -0.2
+  },
+  {
+   "month": "2022-08",
+   "label": "Aug 2022",
+   "release_date": "2022-10-28",
+   "advance": 0.0,
+   "first_print": 0.1,
+   "revised": 0.3,
+   "naive_rw": 0.1,
+   "naive_ma3": 0.1,
+   "surprise": 0.1,
+   "revision": 0.2,
+   "err_rw": 0.0,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2022-09",
+   "label": "Sep 2022",
+   "release_date": "2022-11-29",
+   "advance": 0.1,
+   "first_print": 0.1,
+   "revised": 0.2,
+   "naive_rw": 0.1,
+   "naive_ma3": 0.1,
+   "surprise": 0.0,
+   "revision": 0.1,
+   "err_rw": 0.0,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2022-10",
+   "label": "Oct 2022",
+   "release_date": "2022-12-23",
+   "advance": 0.0,
+   "first_print": 0.1,
+   "revised": -0.1,
+   "naive_rw": 0.1,
+   "naive_ma3": 0.1,
+   "surprise": 0.1,
+   "revision": -0.2,
+   "err_rw": 0.0,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2022-11",
+   "label": "Nov 2022",
+   "release_date": "2023-01-31",
+   "advance": 0.1,
+   "first_print": 0.1,
+   "revised": -0.1,
+   "naive_rw": 0.1,
+   "naive_ma3": 0.1,
+   "surprise": 0.0,
+   "revision": -0.2,
+   "err_rw": 0.0,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2022-12",
+   "label": "Dec 2022",
+   "release_date": "2023-02-28",
+   "advance": 0.0,
+   "first_print": -0.1,
+   "revised": -0.3,
+   "naive_rw": 0.1,
+   "naive_ma3": 0.1,
+   "surprise": -0.1,
+   "revision": -0.2,
+   "err_rw": -0.2,
+   "err_ma3": -0.2
+  },
+  {
+   "month": "2023-01",
+   "label": "Jan 2023",
+   "release_date": "2023-03-31",
+   "advance": 0.3,
+   "first_print": 0.5,
+   "revised": 1.0,
+   "naive_rw": -0.1,
+   "naive_ma3": 0.0,
+   "surprise": 0.2,
+   "revision": 0.5,
+   "err_rw": 0.6,
+   "err_ma3": 0.5
+  },
+  {
+   "month": "2023-02",
+   "label": "Feb 2023",
+   "release_date": "2023-04-28",
+   "advance": 0.3,
+   "first_print": 0.1,
+   "revised": 0.3,
+   "naive_rw": 0.5,
+   "naive_ma3": 0.2,
+   "surprise": -0.2,
+   "revision": 0.2,
+   "err_rw": -0.4,
+   "err_ma3": -0.1
+  },
+  {
+   "month": "2023-03",
+   "label": "Mar 2023",
+   "release_date": "2023-05-31",
+   "advance": -0.1,
+   "first_print": 0.0,
+   "revised": 0.3,
+   "naive_rw": 0.1,
+   "naive_ma3": 0.2,
+   "surprise": 0.1,
+   "revision": 0.3,
+   "err_rw": -0.1,
+   "err_ma3": -0.2
+  },
+  {
+   "month": "2023-04",
+   "label": "Apr 2023",
+   "release_date": "2023-06-30",
+   "advance": 0.2,
+   "first_print": 0.0,
+   "revised": 0.0,
+   "naive_rw": 0.0,
+   "naive_ma3": 0.2,
+   "surprise": -0.2,
+   "revision": 0.0,
+   "err_rw": 0.0,
+   "err_ma3": -0.2
+  },
+  {
+   "month": "2023-05",
+   "label": "May 2023",
+   "release_date": "2023-07-28",
+   "advance": 0.4,
+   "first_print": 0.3,
+   "revised": 0.0,
+   "naive_rw": 0.0,
+   "naive_ma3": 0.0,
+   "surprise": -0.1,
+   "revision": -0.3,
+   "err_rw": 0.3,
+   "err_ma3": 0.3
+  },
+  {
+   "month": "2023-06",
+   "label": "Jun 2023",
+   "release_date": "2023-09-01",
+   "advance": -0.2,
+   "first_print": -0.2,
+   "revised": -0.1,
+   "naive_rw": 0.3,
+   "naive_ma3": 0.1,
+   "surprise": 0.0,
+   "revision": 0.1,
+   "err_rw": -0.5,
+   "err_ma3": -0.3
+  },
+  {
+   "month": "2023-07",
+   "label": "Jul 2023",
+   "release_date": "2023-09-29",
+   "advance": 0.0,
+   "first_print": 0.0,
+   "revised": 0.1,
+   "naive_rw": -0.2,
+   "naive_ma3": 0.0,
+   "surprise": 0.0,
+   "revision": 0.1,
+   "err_rw": 0.2,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2023-08",
+   "label": "Aug 2023",
+   "release_date": "2023-10-31",
+   "advance": 0.1,
+   "first_print": 0.0,
+   "revised": 0.0,
+   "naive_rw": 0.0,
+   "naive_ma3": 0.0,
+   "surprise": -0.1,
+   "revision": 0.0,
+   "err_rw": 0.0,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2023-09",
+   "label": "Sep 2023",
+   "release_date": "2023-11-30",
+   "advance": 0.0,
+   "first_print": 0.1,
+   "revised": -0.0,
+   "naive_rw": 0.0,
+   "naive_ma3": -0.1,
+   "surprise": 0.1,
+   "revision": -0.1,
+   "err_rw": 0.1,
+   "err_ma3": 0.2
+  },
+  {
+   "month": "2023-10",
+   "label": "Oct 2023",
+   "release_date": "2023-12-22",
+   "advance": 0.2,
+   "first_print": 0.0,
+   "revised": 0.1,
+   "naive_rw": 0.1,
+   "naive_ma3": 0.0,
+   "surprise": -0.2,
+   "revision": 0.1,
+   "err_rw": -0.1,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2023-11",
+   "label": "Nov 2023",
+   "release_date": "2024-01-31",
+   "advance": 0.1,
+   "first_print": 0.2,
+   "revised": 0.3,
+   "naive_rw": 0.0,
+   "naive_ma3": 0.0,
+   "surprise": 0.1,
+   "revision": 0.1,
+   "err_rw": 0.2,
+   "err_ma3": 0.2
+  },
+  {
+   "month": "2023-12",
+   "label": "Dec 2023",
+   "release_date": "2024-02-29",
+   "advance": 0.3,
+   "first_print": 0.0,
+   "revised": -0.1,
+   "naive_rw": 0.2,
+   "naive_ma3": 0.1,
+   "surprise": -0.3,
+   "revision": -0.1,
+   "err_rw": -0.2,
+   "err_ma3": -0.1
+  },
+  {
+   "month": "2024-01",
+   "label": "Jan 2024",
+   "release_date": "2024-03-28",
+   "advance": 0.4,
+   "first_print": 0.6,
+   "revised": 0.3,
+   "naive_rw": 0.0,
+   "naive_ma3": 0.1,
+   "surprise": 0.2,
+   "revision": -0.3,
+   "err_rw": 0.6,
+   "err_ma3": 0.5
+  },
+  {
+   "month": "2024-02",
+   "label": "Feb 2024",
+   "release_date": "2024-04-30",
+   "advance": 0.4,
+   "first_print": 0.2,
+   "revised": 0.6,
+   "naive_rw": 0.6,
+   "naive_ma3": 0.3,
+   "surprise": -0.2,
+   "revision": 0.4,
+   "err_rw": -0.4,
+   "err_ma3": -0.1
+  },
+  {
+   "month": "2024-03",
+   "label": "Mar 2024",
+   "release_date": "2024-05-31",
+   "advance": 0.0,
+   "first_print": 0.0,
+   "revised": 0.0,
+   "naive_rw": 0.2,
+   "naive_ma3": 0.3,
+   "surprise": 0.0,
+   "revision": 0.0,
+   "err_rw": -0.2,
+   "err_ma3": -0.3
+  },
+  {
+   "month": "2024-04",
+   "label": "Apr 2024",
+   "release_date": "2024-06-28",
+   "advance": 0.3,
+   "first_print": 0.3,
+   "revised": 0.4,
+   "naive_rw": 0.0,
+   "naive_ma3": 0.3,
+   "surprise": 0.0,
+   "revision": 0.1,
+   "err_rw": 0.3,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2024-05",
+   "label": "May 2024",
+   "release_date": "2024-07-31",
+   "advance": 0.1,
+   "first_print": 0.2,
+   "revised": 0.1,
+   "naive_rw": 0.3,
+   "naive_ma3": 0.2,
+   "surprise": 0.1,
+   "revision": -0.1,
+   "err_rw": -0.1,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2024-06",
+   "label": "Jun 2024",
+   "release_date": "2024-08-30",
+   "advance": 0.1,
+   "first_print": 0.0,
+   "revised": 0.2,
+   "naive_rw": 0.2,
+   "naive_ma3": 0.2,
+   "surprise": -0.1,
+   "revision": 0.2,
+   "err_rw": -0.2,
+   "err_ma3": -0.2
+  },
+  {
+   "month": "2024-07",
+   "label": "Jul 2024",
+   "release_date": "2024-09-27",
+   "advance": 0.0,
+   "first_print": 0.2,
+   "revised": 0.2,
+   "naive_rw": 0.0,
+   "naive_ma3": 0.2,
+   "surprise": 0.2,
+   "revision": 0.0,
+   "err_rw": 0.2,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2024-08",
+   "label": "Aug 2024",
+   "release_date": "2024-10-31",
+   "advance": 0.0,
+   "first_print": 0.0,
+   "revised": 0.1,
+   "naive_rw": 0.2,
+   "naive_ma3": 0.1,
+   "surprise": 0.0,
+   "revision": 0.1,
+   "err_rw": -0.2,
+   "err_ma3": -0.1
+  },
+  {
+   "month": "2024-09",
+   "label": "Sep 2024",
+   "release_date": "2024-11-29",
+   "advance": 0.3,
+   "first_print": 0.1,
+   "revised": 0.3,
+   "naive_rw": 0.0,
+   "naive_ma3": 0.1,
+   "surprise": -0.2,
+   "revision": 0.2,
+   "err_rw": 0.1,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2024-10",
+   "label": "Oct 2024",
+   "release_date": "2024-12-23",
+   "advance": 0.1,
+   "first_print": 0.3,
+   "revised": 0.4,
+   "naive_rw": 0.1,
+   "naive_ma3": 0.1,
+   "surprise": 0.2,
+   "revision": 0.1,
+   "err_rw": 0.2,
+   "err_ma3": 0.2
+  },
+  {
+   "month": "2024-11",
+   "label": "Nov 2024",
+   "release_date": "2025-01-31",
+   "advance": -0.1,
+   "first_print": -0.2,
+   "revised": -0.2,
+   "naive_rw": 0.3,
+   "naive_ma3": 0.1,
+   "surprise": -0.1,
+   "revision": 0.0,
+   "err_rw": -0.5,
+   "err_ma3": -0.3
+  },
+  {
+   "month": "2024-12",
+   "label": "Dec 2024",
+   "release_date": "2025-02-28",
+   "advance": 0.2,
+   "first_print": 0.2,
+   "revised": 0.2,
+   "naive_rw": -0.2,
+   "naive_ma3": 0.1,
+   "surprise": 0.0,
+   "revision": 0.0,
+   "err_rw": 0.4,
+   "err_ma3": 0.1
+  },
+  {
+   "month": "2025-01",
+   "label": "Jan 2025",
+   "release_date": "2025-03-28",
+   "advance": 0.3,
+   "first_print": 0.4,
+   "revised": 0.5,
+   "naive_rw": 0.2,
+   "naive_ma3": 0.1,
+   "surprise": 0.1,
+   "revision": 0.1,
+   "err_rw": 0.2,
+   "err_ma3": 0.3
+  },
+  {
+   "month": "2025-02",
+   "label": "Feb 2025",
+   "release_date": "2025-04-30",
+   "advance": 0.0,
+   "first_print": -0.2,
+   "revised": -0.2,
+   "naive_rw": 0.4,
+   "naive_ma3": 0.1,
+   "surprise": -0.2,
+   "revision": 0.0,
+   "err_rw": -0.6,
+   "err_ma3": -0.3
+  },
+  {
+   "month": "2025-03",
+   "label": "Mar 2025",
+   "release_date": "2025-05-30",
+   "advance": 0.1,
+   "first_print": 0.1,
+   "revised": 0.2,
+   "naive_rw": -0.2,
+   "naive_ma3": 0.1,
+   "surprise": 0.0,
+   "revision": 0.1,
+   "err_rw": 0.3,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2025-04",
+   "label": "Apr 2025",
+   "release_date": "2025-06-27",
+   "advance": 0.1,
+   "first_print": -0.1,
+   "revised": -0.1,
+   "naive_rw": 0.1,
+   "naive_ma3": 0.1,
+   "surprise": -0.2,
+   "revision": 0.0,
+   "err_rw": -0.2,
+   "err_ma3": -0.2
+  },
+  {
+   "month": "2025-05",
+   "label": "May 2025",
+   "release_date": "2025-07-31",
+   "advance": -0.1,
+   "first_print": -0.1,
+   "revised": -0.2,
+   "naive_rw": -0.1,
+   "naive_ma3": -0.1,
+   "surprise": 0.0,
+   "revision": -0.1,
+   "err_rw": 0.0,
+   "err_ma3": 0.0
+  },
+  {
+   "month": "2025-06",
+   "label": "Jun 2025",
+   "release_date": "2025-08-29",
+   "advance": 0.1,
+   "first_print": -0.1,
+   "revised": 0.0,
+   "naive_rw": -0.1,
+   "naive_ma3": -0.0,
+   "surprise": -0.2,
+   "revision": 0.1,
+   "err_rw": 0.0,
+   "err_ma3": -0.1
+  },
+  {
+   "month": "2025-07",
+   "label": "Jul 2025",
+   "release_date": "2025-09-26",
+   "advance": 0.1,
+   "first_print": 0.2,
+   "revised": 0.6,
+   "naive_rw": -0.1,
+   "naive_ma3": -0.1,
+   "surprise": 0.1,
+   "revision": 0.4,
+   "err_rw": 0.3,
+   "err_ma3": 0.3
+  },
+  {
+   "month": "2025-08",
+   "label": "Aug 2025",
+   "release_date": "2025-10-31",
+   "advance": 0.0,
+   "first_print": -0.3,
+   "revised": -0.1,
+   "naive_rw": 0.2,
+   "naive_ma3": 0.0,
+   "surprise": -0.3,
+   "revision": 0.2,
+   "err_rw": -0.5,
+   "err_ma3": -0.3
+  },
+  {
+   "month": "2025-09",
+   "label": "Sep 2025",
+   "release_date": "2025-11-28",
+   "advance": 0.1,
+   "first_print": 0.2,
+   "revised": 0.2,
+   "naive_rw": -0.3,
+   "naive_ma3": -0.1,
+   "surprise": 0.1,
+   "revision": 0.0,
+   "err_rw": 0.5,
+   "err_ma3": 0.3
+  },
+  {
+   "month": "2025-10",
+   "label": "Oct 2025",
+   "release_date": "2025-12-23",
+   "advance": -0.3,
+   "first_print": -0.3,
+   "revised": -0.3,
+   "naive_rw": 0.2,
+   "naive_ma3": 0.0,
+   "surprise": 0.0,
+   "revision": 0.0,
+   "err_rw": -0.5,
+   "err_ma3": -0.3
+  },
+  {
+   "month": "2025-11",
+   "label": "Nov 2025",
+   "release_date": "2026-01-30",
+   "advance": 0.1,
+   "first_print": 0.0,
+   "revised": 0.1,
+   "naive_rw": -0.3,
+   "naive_ma3": -0.1,
+   "surprise": -0.1,
+   "revision": 0.1,
+   "err_rw": 0.3,
+   "err_ma3": 0.1
+  },
+  {
+   "month": "2025-12",
+   "label": "Dec 2025",
+   "release_date": "2026-02-27",
+   "advance": 0.1,
+   "first_print": 0.2,
+   "revised": 0.1,
+   "naive_rw": 0.0,
+   "naive_ma3": -0.0,
+   "surprise": 0.1,
+   "revision": -0.1,
+   "err_rw": 0.2,
+   "err_ma3": 0.2
+  },
+  {
+   "month": "2026-01",
+   "label": "Jan 2026",
+   "release_date": "2026-03-31",
+   "advance": 0.0,
+   "first_print": 0.1,
+   "revised": -0.0,
+   "naive_rw": 0.2,
+   "naive_ma3": -0.0,
+   "surprise": 0.1,
+   "revision": -0.1,
+   "err_rw": -0.1,
+   "err_ma3": 0.1
+  },
+  {
+   "month": "2026-02",
+   "label": "Feb 2026",
+   "release_date": "2026-04-30",
+   "advance": 0.2,
+   "first_print": 0.2,
+   "revised": 0.2,
+   "naive_rw": 0.1,
+   "naive_ma3": 0.1,
+   "surprise": 0.0,
+   "revision": 0.0,
+   "err_rw": 0.1,
+   "err_ma3": 0.1
+  },
+  {
+   "month": "2026-03",
+   "label": "Mar 2026",
+   "release_date": "2026-05-29",
+   "advance": 0.0,
+   "first_print": -0.1,
+   "revised": -0.2,
+   "naive_rw": 0.2,
+   "naive_ma3": 0.2,
+   "surprise": -0.1,
+   "revision": -0.1,
+   "err_rw": -0.3,
+   "err_ma3": -0.3
+  },
+  {
+   "month": "2026-04",
+   "label": "Apr 2026",
+   "release_date": "2026-06-30",
+   "advance": 0.4,
+   "first_print": 0.5,
+   "revised": 0.6,
+   "naive_rw": -0.1,
+   "naive_ma3": 0.1,
+   "surprise": 0.1,
+   "revision": 0.1,
+   "err_rw": 0.6,
+   "err_ma3": 0.4
+  },
+  {
+   "month": "2026-05",
+   "label": "May 2026",
+   "release_date": "2026-07-31",
+   "advance": 0.1,
+   "first_print": 0.3,
+   "revised": 0.3,
+   "naive_rw": 0.5,
+   "naive_ma3": 0.2,
+   "surprise": 0.2,
+   "revision": 0.0,
+   "err_rw": -0.2,
+   "err_ma3": 0.1
+  }
+ ],
+ "stats": {
+  "advance": {
+   "name": "Advance estimate",
+   "n": 49,
+   "mean": -0.004,
+   "mae": 0.114,
+   "rmse": 0.144,
+   "sd": 0.146,
+   "t_stat": -0.2,
+   "mean_differs_from_zero": false,
+   "share_positive": 0.388,
+   "share_zero": 0.265,
+   "largest_abs": 0.3
+  },
+  "revision": {
+   "name": "Revision to first print",
+   "n": 59,
+   "mean": 0.069,
+   "mae": 0.154,
+   "rmse": 0.219,
+   "sd": 0.209,
+   "t_stat": 2.55,
+   "mean_differs_from_zero": true,
+   "share_positive": 0.492,
+   "share_zero": 0.254,
+   "largest_abs": 0.8
+  },
+  "naive_rw": {
+   "name": "Naive: last month repeated",
+   "n": 58,
+   "mean": -0.007,
+   "mae": 0.286,
+   "rmse": 0.364,
+   "sd": 0.367,
+   "t_stat": -0.14,
+   "mean_differs_from_zero": false,
+   "share_positive": 0.414,
+   "share_zero": 0.155,
+   "largest_abs": 0.9
+  },
+  "naive_ma3": {
+   "name": "Naive: 3-month average",
+   "n": 56,
+   "mean": -0.002,
+   "mae": 0.212,
+   "rmse": 0.284,
+   "sd": 0.287,
+   "t_stat": -0.05,
+   "mean_differs_from_zero": false,
+   "share_positive": 0.357,
+   "share_zero": 0.232,
+   "largest_abs": 0.8
+  }
+ },
+ "paired": {
+  "n": 49,
+  "advance_mae": 0.114,
+  "naive_rw_mae": 0.235,
+  "naive_ma3_mae": 0.171,
+  "skill_vs_rw": 0.515,
+  "skill_vs_ma3": 0.333
+ },
+ "robustness": {
+  "applicable": true,
+  "drop_first": 12,
+  "full_mean": 0.069,
+  "full_t": 2.55,
+  "full_significant": true,
+  "later_n": 47,
+  "later_mean": 0.043,
+  "later_t": 1.75,
+  "later_significant": false,
+  "sign_agrees": true
+ },
+ "directional": {
+  "hit": 27,
+  "miss": 3,
+  "flat_excluded": 19,
+  "scored": 30,
+  "accuracy": 0.9
+ },
+ "policy_rate": [
+  {
+   "month": "2021-01",
+   "rate": 0.25
+  },
+  {
+   "month": "2021-02",
+   "rate": 0.25
+  },
+  {
+   "month": "2021-03",
+   "rate": 0.25
+  },
+  {
+   "month": "2021-04",
+   "rate": 0.25
+  },
+  {
+   "month": "2021-05",
+   "rate": 0.25
+  },
+  {
+   "month": "2021-06",
+   "rate": 0.25
+  },
+  {
+   "month": "2021-07",
+   "rate": 0.25
+  },
+  {
+   "month": "2021-08",
+   "rate": 0.25
+  },
+  {
+   "month": "2021-09",
+   "rate": 0.25
+  },
+  {
+   "month": "2021-10",
+   "rate": 0.25
+  },
+  {
+   "month": "2021-11",
+   "rate": 0.25
+  },
+  {
+   "month": "2021-12",
+   "rate": 0.25
+  },
+  {
+   "month": "2022-01",
+   "rate": 0.25
+  },
+  {
+   "month": "2022-02",
+   "rate": 0.25
+  },
+  {
+   "month": "2022-03",
+   "rate": 0.5
+  },
+  {
+   "month": "2022-04",
+   "rate": 1.0
+  },
+  {
+   "month": "2022-05",
+   "rate": 1.0
+  },
+  {
+   "month": "2022-06",
+   "rate": 1.5
+  },
+  {
+   "month": "2022-07",
+   "rate": 2.5
+  },
+  {
+   "month": "2022-08",
+   "rate": 2.5
+  },
+  {
+   "month": "2022-09",
+   "rate": 3.25
+  },
+  {
+   "month": "2022-10",
+   "rate": 3.75
+  },
+  {
+   "month": "2022-11",
+   "rate": 3.75
+  },
+  {
+   "month": "2022-12",
+   "rate": 4.25
+  },
+  {
+   "month": "2023-01",
+   "rate": 4.5
+  },
+  {
+   "month": "2023-02",
+   "rate": 4.5
+  },
+  {
+   "month": "2023-03",
+   "rate": 4.5
+  },
+  {
+   "month": "2023-04",
+   "rate": 4.5
+  },
+  {
+   "month": "2023-05",
+   "rate": 4.5
+  },
+  {
+   "month": "2023-06",
+   "rate": 4.75
+  },
+  {
+   "month": "2023-07",
+   "rate": 5.0
+  },
+  {
+   "month": "2023-08",
+   "rate": 5.0
+  },
+  {
+   "month": "2023-09",
+   "rate": 5.0
+  },
+  {
+   "month": "2023-10",
+   "rate": 5.0
+  },
+  {
+   "month": "2023-11",
+   "rate": 5.0
+  },
+  {
+   "month": "2023-12",
+   "rate": 5.0
+  },
+  {
+   "month": "2024-01",
+   "rate": 5.0
+  },
+  {
+   "month": "2024-02",
+   "rate": 5.0
+  },
+  {
+   "month": "2024-03",
+   "rate": 5.0
+  },
+  {
+   "month": "2024-04",
+   "rate": 5.0
+  },
+  {
+   "month": "2024-05",
+   "rate": 5.0
+  },
+  {
+   "month": "2024-06",
+   "rate": 4.75
+  },
+  {
+   "month": "2024-07",
+   "rate": 4.5
+  },
+  {
+   "month": "2024-08",
+   "rate": 4.5
+  },
+  {
+   "month": "2024-09",
+   "rate": 4.25
+  },
+  {
+   "month": "2024-10",
+   "rate": 3.75
+  },
+  {
+   "month": "2024-11",
+   "rate": 3.75
+  },
+  {
+   "month": "2024-12",
+   "rate": 3.25
+  },
+  {
+   "month": "2025-01",
+   "rate": 3.0
+  },
+  {
+   "month": "2025-02",
+   "rate": 3.0
+  },
+  {
+   "month": "2025-03",
+   "rate": 2.75
+  },
+  {
+   "month": "2025-04",
+   "rate": 2.75
+  },
+  {
+   "month": "2025-05",
+   "rate": 2.75
+  },
+  {
+   "month": "2025-06",
+   "rate": 2.75
+  },
+  {
+   "month": "2025-07",
+   "rate": 2.75
+  },
+  {
+   "month": "2025-08",
+   "rate": 2.75
+  },
+  {
+   "month": "2025-09",
+   "rate": 2.5
+  },
+  {
+   "month": "2025-10",
+   "rate": 2.25
+  },
+  {
+   "month": "2025-11",
+   "rate": 2.25
+  },
+  {
+   "month": "2025-12",
+   "rate": 2.25
+  },
+  {
+   "month": "2026-01",
+   "rate": 2.25
+  },
+  {
+   "month": "2026-02",
+   "rate": 2.25
+  },
+  {
+   "month": "2026-03",
+   "rate": 2.25
+  },
+  {
+   "month": "2026-04",
+   "rate": 2.25
+  },
+  {
+   "month": "2026-05",
+   "rate": 2.25
+  },
+  {
+   "month": "2026-06",
+   "rate": 2.25
+  },
+  {
+   "month": "2026-07",
+   "rate": 2.25
+  },
+  {
+   "month": "2026-08",
+   "rate": 2.25
+  }
+ ]
+}

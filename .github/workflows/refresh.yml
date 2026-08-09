@@ -1,0 +1,93 @@
+name: Refresh scorecard
+
+# Statistics Canada publishes monthly GDP by industry at 08:30 Eastern, usually
+# on the last business day of the month. This runs at 14:00 UTC on the 3rd of
+# each month - several days after that window - so a release that slips by a day
+# or two, or lands on a holiday, is still picked up. Running late costs nothing;
+# running early would publish a page built on last month's data.
+on:
+  schedule:
+    - cron: "0 14 3 * *"
+  # Manual trigger, so the pipeline can be run on demand without waiting a month.
+  workflow_dispatch:
+
+# The job commits the refreshed data and page back to the repository.
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-scorecard
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Every step below is expected to exit non-zero on trouble rather than
+      # carrying on. The whole point of this workflow is that a silent failure
+      # would leave a stale page up that still looks freshly generated.
+      - name: Verify the colour scheme still meets contrast requirements
+        run: python src/validate_colours.py
+
+      - name: Fetch raw data from Statistics Canada and the Bank of Canada
+        run: python src/fetch.py
+
+      - name: Compute the scorecard
+        run: python src/analyze.py
+
+      - name: Render the page
+        run: python src/render.py
+
+      # A belt-and-braces check on the artefact itself. If fetch or render
+      # somehow succeeded while producing something useless, this catches it
+      # before the commit rather than after publication.
+      - name: Sanity-check the rendered page
+        run: |
+          set -euo pipefail
+          test -s docs/index.html
+          bytes=$(wc -c < docs/index.html)
+          echo "docs/index.html is ${bytes} bytes"
+          if [ "$bytes" -lt 12000 ]; then
+            echo "::error::Rendered page is suspiciously small (${bytes} bytes)."
+            exit 1
+          fi
+          for needle in "Canada Data Surprise Scorecard" "Advance estimate" "<table"; do
+            if ! grep -q "$needle" docs/index.html; then
+              echo "::error::Rendered page is missing expected content: ${needle}"
+              exit 1
+            fi
+          done
+          # The page must stay self-contained: no external scripts, styles or
+          # images, and no JavaScript at all.
+          if grep -Eqi '<script|src="https?://|<link[^>]+stylesheet' docs/index.html; then
+            echo "::error::Page is no longer self-contained (external asset or script found)."
+            exit 1
+          fi
+
+      - name: Commit the refreshed data and page
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data docs
+          if git diff --cached --quiet; then
+            echo "No change in the data this month - nothing to commit."
+            exit 0
+          fi
+          git commit -m "Refresh scorecard ($(date -u +%Y-%m-%d))"
+          git push

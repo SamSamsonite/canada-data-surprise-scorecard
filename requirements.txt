@@ -1,0 +1,7 @@
+# One dependency. Everything else - HTML parsing, statistics, SVG generation -
+# uses the Python standard library.
+#
+# This is deliberate. A scheduled job that runs unattended once a month is
+# only as reliable as its dependency tree, and charts drawn as raw SVG strings
+# are both more accessible and more stable than a plotting library's output.
+requests>=2.31,<3
