@@ -28,6 +28,13 @@ Page and code in comments.
 
 ---
 
+## The first comment (post this immediately after)
+
+> Live page: https://samsamsonite.github.io/canada-data-surprise-scorecard/
+> Code and method: https://github.com/SamSamsonite/canada-data-surprise-scorecard
+
+---
+
 ## Notes on this draft
 
 - The finding, not the stack. No mention of Python, GitHub Actions, or SVG — anyone who

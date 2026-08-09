@@ -9,8 +9,7 @@ figure that eventually replaced it after revision.
 Built entirely from free, openly-licensed public data. No paid terminal, no licensed
 consensus forecasts, no API keys.
 
-**→ [View the page](https://YOUR-USERNAME.github.io/canada-data-surprise-scorecard/)**
-*(replace with your Pages URL once published)*
+**→ [View the live page](https://samsamsonite.github.io/canada-data-surprise-scorecard/)**
 
 ---
 
@@ -105,7 +104,7 @@ brute-forced candidate URLs and made several thousand requests, nearly all 404s.
 Python 3.11 or newer. One dependency.
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/canada-data-surprise-scorecard.git
+git clone https://github.com/SamSamsonite/canada-data-surprise-scorecard.git
 cd canada-data-surprise-scorecard
 
 python3 -m venv .venv
