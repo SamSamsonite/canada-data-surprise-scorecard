@@ -1,5 +1,14 @@
 [
  {
+  "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/260828/dq260828b-eng.htm",
+  "reference_month": "2026-06",
+  "first_print_pct": 0.3,
+  "advance_month": "2026-07",
+  "advance_pct": 0.0,
+  "problems": [],
+  "release_date": "2026-08-28"
+ },
+ {
   "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/260731/dq260731a-eng.htm",
   "reference_month": "2026-05",
   "first_print_pct": 0.3,
@@ -546,16 +555,5 @@
    "advance-estimate sentence not found"
   ],
   "release_date": "2021-10-01"
- },
- {
-  "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/210831/dq210831b-eng.htm",
-  "reference_month": "2021-06",
-  "first_print_pct": 0.7,
-  "advance_month": null,
-  "advance_pct": null,
-  "problems": [
-   "advance-estimate sentence not found"
-  ],
-  "release_date": "2021-08-31"
  }
 ]
