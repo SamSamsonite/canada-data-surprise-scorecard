@@ -1,14 +1,14 @@
 {
- "generated": "2026-09-03 14:15 UTC",
- "source_release": "2026-09-03",
+ "generated": "2026-10-03 18:30 UTC",
+ "source_release": "2026-10-03",
  "series_title": "Canada;Seasonally adjusted at annual rates;Chained (2017) dollars;All industries",
  "coverage": {
   "releases_crawled": 60,
   "months_with_first_print": 59,
-  "months_with_advance": 50,
+  "months_with_advance": 51,
   "months_with_revision": 59,
-  "first_month": "2021-07",
-  "last_month": "2026-06",
+  "first_month": "2021-08",
+  "last_month": "2026-07",
   "parse_failures": [
    {
     "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/220630/dq220630a-eng.htm",
@@ -59,31 +59,10 @@
     "problems": [
      "advance-estimate sentence not found"
     ]
-   },
-   {
-    "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/211001/dq211001a-eng.htm",
-    "release_date": "2021-10-01",
-    "problems": [
-     "advance-estimate sentence not found"
-    ]
    }
   ]
  },
  "records": [
-  {
-   "month": "2021-07",
-   "label": "Jul 2021",
-   "release_date": "2021-10-01",
-   "advance": null,
-   "first_print": -0.1,
-   "revised": 0.7,
-   "naive_rw": null,
-   "naive_ma3": null,
-   "surprise": null,
-   "revision": 0.8,
-   "err_rw": null,
-   "err_ma3": null
-  },
   {
    "month": "2021-08",
    "label": "Aug 2021",
@@ -91,11 +70,11 @@
    "advance": null,
    "first_print": 0.4,
    "revised": 0.8,
-   "naive_rw": -0.1,
+   "naive_rw": null,
    "naive_ma3": null,
    "surprise": null,
    "revision": 0.4,
-   "err_rw": 0.5,
+   "err_rw": null,
    "err_ma3": null
   },
   {
@@ -120,11 +99,11 @@
    "first_print": 0.8,
    "revised": 0.8,
    "naive_rw": 0.1,
-   "naive_ma3": 0.1,
+   "naive_ma3": null,
    "surprise": null,
    "revision": 0.0,
    "err_rw": 0.7,
-   "err_ma3": 0.7
+   "err_ma3": null
   },
   {
    "month": "2021-11",
@@ -888,93 +867,107 @@
    "release_date": "2026-08-28",
    "advance": 0.2,
    "first_print": 0.3,
-   "revised": 0.3,
+   "revised": 0.4,
    "naive_rw": 0.3,
    "naive_ma3": 0.2,
    "surprise": 0.1,
-   "revision": 0.0,
+   "revision": 0.1,
    "err_rw": 0.0,
    "err_ma3": 0.1
+  },
+  {
+   "month": "2026-07",
+   "label": "Jul 2026",
+   "release_date": "2026-09-29",
+   "advance": 0.0,
+   "first_print": 0.0,
+   "revised": -0.0,
+   "naive_rw": 0.3,
+   "naive_ma3": 0.4,
+   "surprise": 0.0,
+   "revision": -0.0,
+   "err_rw": -0.3,
+   "err_ma3": -0.4
   }
  ],
  "stats": {
   "advance": {
    "name": "Advance estimate",
-   "n": 50,
+   "n": 51,
    "mean": -0.002,
-   "mae": 0.114,
-   "rmse": 0.144,
-   "sd": 0.145,
+   "mae": 0.112,
+   "rmse": 0.142,
+   "sd": 0.144,
    "t_stat": -0.1,
    "mean_differs_from_zero": false,
-   "share_positive": 0.4,
-   "share_zero": 0.26,
+   "share_positive": 0.392,
+   "share_zero": 0.275,
    "largest_abs": 0.3
   },
   "revision": {
    "name": "Revision to first print",
    "n": 59,
-   "mean": 0.066,
-   "mae": 0.151,
-   "rmse": 0.221,
-   "sd": 0.212,
-   "t_stat": 2.39,
+   "mean": 0.054,
+   "mae": 0.139,
+   "rmse": 0.195,
+   "sd": 0.189,
+   "t_stat": 2.21,
    "mean_differs_from_zero": true,
    "share_positive": 0.458,
    "share_zero": 0.288,
-   "largest_abs": 0.8
+   "largest_abs": 0.5
   },
   "naive_rw": {
    "name": "Naive: last month repeated",
    "n": 58,
-   "mean": 0.007,
-   "mae": 0.272,
-   "rmse": 0.348,
-   "sd": 0.351,
-   "t_stat": 0.15,
+   "mean": -0.007,
+   "mae": 0.269,
+   "rmse": 0.344,
+   "sd": 0.347,
+   "t_stat": -0.15,
    "mean_differs_from_zero": false,
-   "share_positive": 0.414,
+   "share_positive": 0.397,
    "share_zero": 0.172,
    "largest_abs": 0.9
   },
   "naive_ma3": {
    "name": "Naive: 3-month average",
    "n": 56,
-   "mean": 0.004,
-   "mae": 0.211,
-   "rmse": 0.283,
-   "sd": 0.286,
-   "t_stat": 0.09,
+   "mean": -0.016,
+   "mae": 0.205,
+   "rmse": 0.273,
+   "sd": 0.275,
+   "t_stat": -0.44,
    "mean_differs_from_zero": false,
-   "share_positive": 0.375,
+   "share_positive": 0.357,
    "share_zero": 0.232,
    "largest_abs": 0.8
   }
  },
  "paired": {
-  "n": 50,
-  "advance_mae": 0.114,
-  "naive_rw_mae": 0.23,
-  "naive_ma3_mae": 0.17,
-  "skill_vs_rw": 0.504,
-  "skill_vs_ma3": 0.329
+  "n": 51,
+  "advance_mae": 0.112,
+  "naive_rw_mae": 0.231,
+  "naive_ma3_mae": 0.175,
+  "skill_vs_rw": 0.515,
+  "skill_vs_ma3": 0.36
  },
  "robustness": {
   "applicable": true,
   "drop_first": 12,
-  "full_mean": 0.066,
-  "full_t": 2.39,
+  "full_mean": 0.054,
+  "full_t": 2.21,
   "full_significant": true,
   "later_n": 47,
-  "later_mean": 0.043,
-  "later_t": 1.7,
+  "later_mean": 0.04,
+  "later_t": 1.63,
   "later_significant": false,
   "sign_agrees": true
  },
  "directional": {
   "hit": 28,
   "miss": 3,
-  "flat_excluded": 19,
+  "flat_excluded": 20,
   "scored": 31,
   "accuracy": 0.903
  },
@@ -1253,6 +1246,10 @@
   },
   {
    "month": "2026-09",
+   "rate": 2.25
+  },
+  {
+   "month": "2026-10",
    "rate": 2.25
   }
  ]
